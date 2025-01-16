@@ -1,59 +1,72 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel; // <-- Needed for INotifyPropertyChanged
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace QCLCalendarMaker
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        public DateTime SelectedDay;
+        // Private backing field
+        private DateTime _selectedDay;
+
+        // Public property for data binding
+        public DateTime SelectedDay
+        {
+            get => _selectedDay;
+            set
+            {
+                if (_selectedDay != value)
+                {
+                    _selectedDay = value;
+                    OnPropertyChanged(nameof(SelectedDay));
+                }
+            }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
 
-            // For a quick demo binding, you can set the DataContext to this Window itself
+            // Set the DataContext to this window so bindings work
             this.DataContext = this;
 
-            // Alternatively, you could set your DisplayDate range directly in code behind:
+            // Initialize default values or ranges
             DateTime today = DateTime.Today.AddDays(15);
             MainCalendar.DisplayDateStart = today.AddDays(-30);
             MainCalendar.DisplayDateEnd = today.AddDays(30);
-            MainCalendar.DisplayDate = today;
+
+            // For demonstration, let's set SelectedDay to "today"
+            SelectedDay = today;
+
+            // Initialize your combo box
             PlanningTypeCombo.SelectedIndex = 0;
         }
+
+        // Implement the INotifyPropertyChanged event
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         private void PlanningTypeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Get the selected text from the first ComboBox
             var selectedItem = (PlanningTypeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString();
 
-            // Clear out any old items from second ComboBox
+            // Clear out old items from the second ComboBox
+            SpecificPlanCombo.Items.Clear();
 
             if (selectedItem == "3D")
             {
-                // Enable second ComboBox
                 SpecificPlanCombo.IsEnabled = true;
 
-                // Add items for 3D
                 var threeDoptions = new List<string>
                 {
                     "Select one", "Palliative", "Lung", "Abdomen", "Rectum",
                     "Bladder", "CSI", "Breast", "CW+Nodes"
                 };
-
                 foreach (var option in threeDoptions)
                 {
                     SpecificPlanCombo.Items.Add(option);
@@ -62,10 +75,8 @@ namespace QCLCalendarMaker
             }
             else if (selectedItem == "IMRT")
             {
-                // Enable second ComboBox
                 SpecificPlanCombo.IsEnabled = true;
 
-                // Add items for IMRT
                 var imrtOptions = new List<string>
                 {
                     "Select one", "Abdomen", "Lung Non-SBRT", "GYN (intact)",
@@ -84,11 +95,8 @@ namespace QCLCalendarMaker
             }
             else
             {
-                // If user selected "Pick an option" or anything else, disable second ComboBox
                 SpecificPlanCombo.IsEnabled = false;
             }
         }
-        // Bindable properties for the Calendar
-
     }
 }
