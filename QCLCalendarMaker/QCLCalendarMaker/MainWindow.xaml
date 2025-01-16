@@ -15,7 +15,7 @@
         <!-- Calendar in the left column -->
         <Calendar x:Name="MainCalendar"
           Grid.Column="0"
-          Margin="10,71,528,375"
+          Margin="10,227,528,219"
           SelectedDate="{Binding SelectedDay, Mode=TwoWay}"
           IsTodayHighlighted="True">
             <Calendar.Resources>
@@ -33,7 +33,7 @@
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top">
 
-            <TextBlock Text="Task Days" FontSize="16" />
+            <TextBlock Text="Select a day first! Defaults to today" FontSize="16" />
 
             <!-- FIRST COMBOBOX -->
             <ComboBox x:Name="PlanningTypeCombo" 
@@ -49,7 +49,8 @@
             <ComboBox x:Name="SpecificPlanCombo"
                       Margin="0,10,0,0"
                       Width="200"
-                      IsEnabled="True" />
+                      SelectionChanged="SpecificPlanCombo_SelectionChanged"
+                      IsEnabled="False" />
         </StackPanel>
 
         <StackPanel x:Name="QCLStackPanel"
@@ -57,6 +58,6 @@
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top" Height="292" Width="273">
         </StackPanel>
-        <Button Content="Calculate QCLs from selected date" HorizontalAlignment="Left" Margin="343,186,0,0" VerticalAlignment="Top" Height="48" Width="273" IsEnabled="False"/>
+        <Button x:Name="QCLButton" Content="Calculate QCLs from selected date" HorizontalAlignment="Left" Margin="343,200,0,0" VerticalAlignment="Top" Height="48" Width="273" IsEnabled="False" Click="QCLButton_Click"/>
     </Grid>
 </Window>
