@@ -1,0 +1,62 @@
+﻿<Window x:Class="QCLCalendarMaker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:QCLCalendarMaker"
+        mc:Ignorable="d"
+        Title="MainWindow"
+        Height="650"
+        Width="800">
+
+    <Grid>
+        <!-- Define columns with star sizing so the left (2*) 
+             is about double the width of the right (1*). -->
+        <!-- Calendar in the left column -->
+        <Calendar x:Name="MainCalendar"
+          Grid.Column="0"
+          Margin="10,71,528,375"
+          SelectedDate="{Binding SelectedDay, Mode=TwoWay}"
+          IsTodayHighlighted="True">
+            <Calendar.Resources>
+                <!-- Increase the font size (and optionally the minimum size) of each date cell. -->
+                <Style TargetType="CalendarDayButton">
+                    <Setter Property="FontSize" Value="80"/>
+                    <Setter Property="MinWidth" Value="80"/>
+                    <Setter Property="MinHeight" Value="80"/>
+                </Style>
+            </Calendar.Resources>
+        </Calendar>
+        <!-- StackPanel in the right column -->
+        <!-- Right: StackPanel with two ComboBoxes -->
+        <StackPanel Margin="343,75,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top">
+
+            <TextBlock Text="Task Days" FontSize="16" />
+
+            <!-- FIRST COMBOBOX -->
+            <ComboBox x:Name="PlanningTypeCombo" 
+                      Margin="0,10,0,0"
+                      Width="200"
+                      SelectionChanged="PlanningTypeCombo_SelectionChanged">
+                <ComboBoxItem Content="Pick an option"/>
+                <ComboBoxItem Content="3D" />
+                <ComboBoxItem Content="IMRT" />
+            </ComboBox>
+
+            <!-- SECOND COMBOBOX (initially disabled) -->
+            <ComboBox x:Name="SpecificPlanCombo"
+                      Margin="0,10,0,0"
+                      Width="200"
+                      IsEnabled="True" />
+        </StackPanel>
+
+        <StackPanel x:Name="QCLStackPanel"
+                    Margin="343,265,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top" Height="292" Width="273">
+        </StackPanel>
+        <Button Content="Calculate QCLs from selected date" HorizontalAlignment="Left" Margin="343,186,0,0" VerticalAlignment="Top" Height="48" Width="273" IsEnabled="False"/>
+    </Grid>
+</Window>
