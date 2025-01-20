@@ -22,6 +22,33 @@ namespace QCLCalendarMaker
             }
         }
 
+        private int _MDContouringDays;
+        public int MDContouringDays
+        {
+            get => _MDContouringDays;
+            set
+            {
+                if (_MDContouringDays != value)
+                {
+                    _MDContouringDays = value;
+                    OnPropertyChanged(nameof(_MDContouringDays));
+                }
+            }
+        }
+        private int _PlanningDays;
+        public int PlanningDays
+        {
+            get => _PlanningDays;
+            set
+            {
+                if (_PlanningDays != value)
+                {
+                    _PlanningDays = value;
+                    OnPropertyChanged(nameof(_PlanningDays));
+                }
+            }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -34,6 +61,9 @@ namespace QCLCalendarMaker
             MainCalendar.DisplayDateStart = today.AddDays(-30);
             MainCalendar.DisplayDateEnd = today.AddDays(30);
             SelectedDay = today;
+            MDContouringDays = 0;
+            PlanningDays = 0;
+
 
             // Initialize the first combo box
             PlanningTypeCombo.SelectedIndex = 0;
@@ -79,9 +109,10 @@ namespace QCLCalendarMaker
                 // so just return to avoid generating confusing labels.
                 return;
             }
+            MDContouringDays = simOffset;
 
             // 1) "SIM Review" and "MD Contour QCL" on simOffset days from SelectedDay
-            var mdContoursDate = AddBusinessDays(SelectedDay, simOffset);
+            var mdContoursDate = AddBusinessDays(SelectedDay, MDContouringDays);
 
             var simReviewLabel = new Label
             {
@@ -96,7 +127,7 @@ namespace QCLCalendarMaker
             QCLStackPanel.Children.Add(mdContoursQCLLabel);
 
             // 2) "DOS Tx Planning" is 8 business days from SelectedDay (unchanged).
-            var treatmentDate = AddBusinessDays(SelectedDay, 8);
+            var treatmentDate = AddBusinessDays(SelectedDay, MDContouringDays + PlanningDays);
             var treatmentLabel = new Label
             {
                 Content = $"DOS Tx Planning: {treatmentDate:M/dd}"
