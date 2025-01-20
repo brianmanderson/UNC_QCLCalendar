@@ -86,46 +86,51 @@ namespace QCLCalendarMaker
 
             // Clear out old items from the second ComboBox
             SpecificPlanCombo.Items.Clear();
+            List<string> specificComboOptions = new List<string> { };
+            bool selected = false;
+
+            SpecificPlanCombo.IsEnabled = false;
+            QCLButton.IsEnabled = false;
 
             if (selectedItem == "3D")
             {
-                SpecificPlanCombo.IsEnabled = true;
-
-                var threeDoptions = new List<string>
+                selected = true;
+                specificComboOptions = new List<string>
                 {
                     "Select one", "Palliative", "Lung", "Abdomen", "Rectum",
                     "Bladder", "CSI", "Breast", "CW+Nodes"
                 };
-                foreach (var option in threeDoptions)
-                {
-                    SpecificPlanCombo.Items.Add(option);
-                }
-                SpecificPlanCombo.SelectedIndex = 0;
             }
             else if (selectedItem == "IMRT")
             {
-                SpecificPlanCombo.IsEnabled = true;
-
-                var imrtOptions = new List<string>
+                selected = true;
+                specificComboOptions = new List<string>
                 {
                     "Select one", "Abdomen", "Lung Non-SBRT", "GYN (intact)",
                     "Head and Neck", "Anal+Nodes", "Brain",
                     "Esophagus", "Rectum", "Bladder",
                     "Hippocampal Sparing Brain", "Breast", "CW+Nodes",
                     "Pancreas", "GYN Post-op", "Prostate (w w/o Nodes)",
-                    "Lung SBRT", "CSI Tomo"
+                    "CSI Tomo"
+                };
+            }
+            else if (selectedItem == "SBRT")
+            {
+                selected = true;
+                specificComboOptions = new List<string>
+                {
+                    "Select one", "Lung SBRT"
                 };
 
-                foreach (var option in imrtOptions)
+            }
+            if (selected)
+            {
+                SpecificPlanCombo.IsEnabled = true;
+                foreach (var option in specificComboOptions)
                 {
                     SpecificPlanCombo.Items.Add(option);
                 }
                 SpecificPlanCombo.SelectedIndex = 0;
-            }
-            else
-            {
-                SpecificPlanCombo.IsEnabled = false;
-                QCLButton.IsEnabled = false;
             }
         }
 
@@ -141,31 +146,22 @@ namespace QCLCalendarMaker
             var mdContoursDate = AddBusinessDays(SelectedDay, 2);
             var mdContoursLabel = new Label
             {
-                Content = $"MD Contours: {mdContoursDate:M/dd}"
+                Content = $"SIM Review: {mdContoursDate:M/dd}"
             };
             QCLStackPanel.Children.Add(mdContoursLabel);
 
-            // 2) "Physics Pre-MD": 4 business days after SelectedDay
-            var physicsPreMdDate = AddBusinessDays(SelectedDay, 4);
-            var physicsPreMdLabel = new Label
+            var mdContoursQCLLabel = new Label
             {
-                Content = $"Physics Pre-MD: {physicsPreMdDate:M/dd}"
+                Content = $"MD Contour QCL: {mdContoursDate:M/dd}"
             };
-            QCLStackPanel.Children.Add(physicsPreMdLabel);
+            QCLStackPanel.Children.Add(mdContoursQCLLabel);
 
-            // 3) "Physics Pre-Tx": 6 business days after SelectedDay
-            var physicsPreTxDate = AddBusinessDays(SelectedDay, 6);
-            var physicsPreTxLabel = new Label
-            {
-                Content = $"Physics Pre-Tx: {physicsPreTxDate:M/dd}"
-            };
-            QCLStackPanel.Children.Add(physicsPreTxLabel);
 
-            // 4) "Treatment": 8 business days after SelectedDay
+            // 2) "Treatment": 8 business days after SelectedDay
             var treatmentDate = AddBusinessDays(SelectedDay, 8);
             var treatmentLabel = new Label
             {
-                Content = $"Treatment: {treatmentDate:M/dd}"
+                Content = $"DOS Tx Planning: {treatmentDate:M/dd}"
             };
             QCLStackPanel.Children.Add(treatmentLabel);
         }

@@ -29,11 +29,10 @@
         </Calendar>
         <!-- StackPanel in the right column -->
         <!-- Right: StackPanel with two ComboBoxes -->
-        <StackPanel Margin="343,75,0,0"
+        <StackPanel Margin="425,75,0,0"
                     HorizontalAlignment="Left"
-                    VerticalAlignment="Top">
+                    VerticalAlignment="Top" Height="92">
 
-            <TextBlock Text="Select a day first! Defaults to today" FontSize="16" />
 
             <!-- FIRST COMBOBOX -->
             <ComboBox x:Name="PlanningTypeCombo" 
@@ -43,11 +42,12 @@
                 <ComboBoxItem Content="Pick an option"/>
                 <ComboBoxItem Content="3D" />
                 <ComboBoxItem Content="IMRT" />
+                <ComboBoxItem Content="SBRT" />
             </ComboBox>
 
             <!-- SECOND COMBOBOX (initially disabled) -->
             <ComboBox x:Name="SpecificPlanCombo"
-                      Margin="0,10,0,0"
+                      Margin="0,20,0,0"
                       Width="200"
                       SelectionChanged="SpecificPlanCombo_SelectionChanged"
                       IsEnabled="False" />
@@ -59,5 +59,7 @@
                     VerticalAlignment="Top" Height="292" Width="273">
         </StackPanel>
         <Button x:Name="QCLButton" Content="Calculate QCLs from selected date" HorizontalAlignment="Left" Margin="343,200,0,0" VerticalAlignment="Top" Height="48" Width="273" IsEnabled="False" Click="QCLButton_Click"/>
+        <Label Content="Select Modality" HorizontalAlignment="Left" Margin="301,83,0,0" VerticalAlignment="Top"/>
+        <Label Content="Select Site" HorizontalAlignment="Left" Margin="315,126,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>
