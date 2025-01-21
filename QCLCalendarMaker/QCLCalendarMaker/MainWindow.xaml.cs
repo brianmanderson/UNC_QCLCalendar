@@ -8,6 +8,7 @@ namespace QCLCalendarMaker
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        private DateTime Today;
         private DateTime _selectedDay;
         public DateTime SelectedDay
         {
@@ -57,10 +58,9 @@ namespace QCLCalendarMaker
             this.DataContext = this;
 
             // Initialize default values or ranges
-            DateTime today = DateTime.Now;
-            MainCalendar.DisplayDateStart = today.AddDays(-30);
-            MainCalendar.DisplayDateEnd = today.AddDays(30);
-            SelectedDay = today;
+            Today = DateTime.Now;
+            MainCalendar.DisplayDateStart = Today.AddDays(-60);
+            MainCalendar.DisplayDateEnd = Today.AddDays(60);
             MDContouringDays = 2;
             PlanningDays = 4;
             QCLButton.Visibility = Visibility.Collapsed;
@@ -148,27 +148,33 @@ namespace QCLCalendarMaker
             MDContouringDays = simOffset;
 
             // 1) "SIM Review" and "MD Contour QCL" on simOffset days from SelectedDay
-            var mdContoursDate = AddBusinessDays(SelectedDay, MDContouringDays);
+            DateTime mdContoursDate = AddBusinessDays(Today, MDContouringDays);
 
-            var simReviewLabel = new Label
+            Label simReviewLabel = new Label
             {
                 Content = $"SIM Review: {mdContoursDate:M/dd}"
             };
             QCLStackPanel.Children.Add(simReviewLabel);
 
-            var mdContoursQCLLabel = new Label
+            Label mdContoursQCLLabel = new Label
             {
                 Content = $"MD Contour QCL: {mdContoursDate:M/dd}"
             };
             QCLStackPanel.Children.Add(mdContoursQCLLabel);
 
             // 2) "DOS Tx Planning" is 8 business days from SelectedDay (unchanged).
-            var treatmentDate = AddBusinessDays(SelectedDay, MDContouringDays + PlanningDays);
-            var treatmentLabel = new Label
+            DateTime treatmentDate = AddBusinessDays(Today, MDContouringDays + PlanningDays - 1);
+            Label treatmentLabel = new Label
             {
                 Content = $"DOS Tx Planning: {treatmentDate:M/dd}"
             };
             QCLStackPanel.Children.Add(treatmentLabel);
+            DateTime startDate = AddBusinessDays(Today, MDContouringDays + PlanningDays - 1 + 3);
+            Label StartReccomendationLabel = new Label
+            {
+                Content = $"Recommended EARLIEST Start: {startDate:M/dd}"
+            };
+            QCLStackPanel.Children.Add(StartReccomendationLabel);
         }
 
         // --- Event Handlers ---
