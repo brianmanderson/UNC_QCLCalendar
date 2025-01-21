@@ -24,7 +24,8 @@ namespace QCLCalendarMaker
                 }
             }
         }
-
+        public int days_to_contour = 2;
+        public double days_to_plan = 1.5;
         public MainWindow()
         {
             InitializeComponent();
