@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel; // <-- Needed for INotifyPropertyChanged
+using System.ComponentModel; // Needed for INotifyPropertyChanged
 using System.Windows;
 using System.Windows.Controls;
 
@@ -8,10 +8,7 @@ namespace QCLCalendarMaker
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        // Private backing field
         private DateTime _selectedDay;
-
-        // Public property for data binding
         public DateTime SelectedDay
         {
             get => _selectedDay;
@@ -24,8 +21,34 @@ namespace QCLCalendarMaker
                 }
             }
         }
-        public int days_to_contour = 2;
-        public double days_to_plan = 1.5;
+
+        private int _MDContouringDays;
+        public int MDContouringDays
+        {
+            get => _MDContouringDays;
+            set
+            {
+                if (_MDContouringDays != value)
+                {
+                    _MDContouringDays = value;
+                    OnPropertyChanged(nameof(_MDContouringDays));
+                }
+            }
+        }
+        private int _PlanningDays;
+        public int PlanningDays
+        {
+            get => _PlanningDays;
+            set
+            {
+                if (_PlanningDays != value)
+                {
+                    _PlanningDays = value;
+                    OnPropertyChanged(nameof(_PlanningDays));
+                }
+            }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -37,16 +60,20 @@ namespace QCLCalendarMaker
             DateTime today = DateTime.Now;
             MainCalendar.DisplayDateStart = today.AddDays(-30);
             MainCalendar.DisplayDateEnd = today.AddDays(30);
-
-            // For demonstration, let's set SelectedDay to "today"
             SelectedDay = today;
+            MDContouringDays = 0;
+            PlanningDays = 0;
 
-            // Initialize your combo box
+
+            // Initialize the first combo box
             PlanningTypeCombo.SelectedIndex = 0;
         }
+
+        /// <summary>
+        /// Add N business days (skipping weekends) to a given date.
+        /// </summary>
         private DateTime AddBusinessDays(DateTime startDate, int daysToAdd)
         {
-            // 'direction' is +1 for future, -1 for past
             int direction = Math.Sign(daysToAdd);
             int absDays = Math.Abs(daysToAdd);
 
@@ -54,8 +81,9 @@ namespace QCLCalendarMaker
             while (absDays > 0)
             {
                 newDate = newDate.AddDays(direction);
-                // If it's NOT Saturday or Sunday, count it
-                if (newDate.DayOfWeek != DayOfWeek.Saturday && newDate.DayOfWeek != DayOfWeek.Sunday)
+
+                if (newDate.DayOfWeek != DayOfWeek.Saturday &&
+                    newDate.DayOfWeek != DayOfWeek.Sunday)
                 {
                     absDays--;
                 }
@@ -63,14 +91,59 @@ namespace QCLCalendarMaker
             return newDate;
         }
 
-        // Implement the INotifyPropertyChanged event
+        /// <summary>
+        /// Rebuilds the QCLStackPanel labels based on the current offsets and SelectedDay.
+        /// </summary>
+        private void GenerateQCLLabels()
+        {
+            QCLContainerStackPanel.Visibility = Visibility.Visible;
+            // Always clear old labels first
+            QCLStackPanel.Children.Clear();
+
+            // Parse the user's offset from the SIM Review TextBox
+            // If invalid, fallback to 2 or skip
+            int simOffset;
+            if (!int.TryParse(SimReviewOffsetTextBox.Text, out simOffset))
+            {
+                // If it's invalid, we should already have a warning visible,
+                // so just return to avoid generating confusing labels.
+                return;
+            }
+            MDContouringDays = simOffset;
+
+            // 1) "SIM Review" and "MD Contour QCL" on simOffset days from SelectedDay
+            var mdContoursDate = AddBusinessDays(SelectedDay, MDContouringDays);
+
+            var simReviewLabel = new Label
+            {
+                Content = $"SIM Review: {mdContoursDate:M/dd}"
+            };
+            QCLStackPanel.Children.Add(simReviewLabel);
+
+            var mdContoursQCLLabel = new Label
+            {
+                Content = $"MD Contour QCL: {mdContoursDate:M/dd}"
+            };
+            QCLStackPanel.Children.Add(mdContoursQCLLabel);
+
+            // 2) "DOS Tx Planning" is 8 business days from SelectedDay (unchanged).
+            var treatmentDate = AddBusinessDays(SelectedDay, MDContouringDays + PlanningDays);
+            var treatmentLabel = new Label
+            {
+                Content = $"DOS Tx Planning: {treatmentDate:M/dd}"
+            };
+            QCLStackPanel.Children.Add(treatmentLabel);
+        }
+
+        // --- Event Handlers ---
+
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
         private void SpecificPlanCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // If the user picks any site (index != 0), enable QCL button
             if (SpecificPlanCombo.SelectedIndex != 0)
             {
                 QCLButton.IsEnabled = true;
@@ -78,6 +151,7 @@ namespace QCLCalendarMaker
             else
             {
                 QCLButton.IsEnabled = false;
+                QCLContainerStackPanel.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -85,90 +159,92 @@ namespace QCLCalendarMaker
         {
             var selectedItem = (PlanningTypeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString();
 
-            // Clear out old items from the second ComboBox
+            // Clear and reset
             SpecificPlanCombo.Items.Clear();
+            SpecificPlanCombo.IsEnabled = false;
+            QCLContainerStackPanel.Visibility = Visibility.Collapsed;
+            QCLButton.IsEnabled = false;
+
+            // Decide which list to show
+            List<string> specificComboOptions = new List<string>();
+            bool hasOptions = false;
 
             if (selectedItem == "3D")
             {
-                SpecificPlanCombo.IsEnabled = true;
-
-                var threeDoptions = new List<string>
+                specificComboOptions = new List<string>
                 {
                     "Select one", "Palliative", "Lung", "Abdomen", "Rectum",
                     "Bladder", "CSI", "Breast", "CW+Nodes"
                 };
-                foreach (var option in threeDoptions)
-                {
-                    SpecificPlanCombo.Items.Add(option);
-                }
-                SpecificPlanCombo.SelectedIndex = 0;
+                hasOptions = true;
             }
             else if (selectedItem == "IMRT")
             {
-                SpecificPlanCombo.IsEnabled = true;
-
-                var imrtOptions = new List<string>
+                specificComboOptions = new List<string>
                 {
                     "Select one", "Abdomen", "Lung Non-SBRT", "GYN (intact)",
                     "Head and Neck", "Anal+Nodes", "Brain",
                     "Esophagus", "Rectum", "Bladder",
                     "Hippocampal Sparing Brain", "Breast", "CW+Nodes",
                     "Pancreas", "GYN Post-op", "Prostate (w w/o Nodes)",
-                    "Lung SBRT", "CSI Tomo"
+                    "CSI Tomo"
                 };
+                hasOptions = true;
+            }
+            else if (selectedItem == "SBRT")
+            {
+                specificComboOptions = new List<string>
+                {
+                    "Select one", "Lung SBRT"
+                };
+                hasOptions = true;
+            }
 
-                foreach (var option in imrtOptions)
+            if (hasOptions)
+            {
+                SpecificPlanCombo.IsEnabled = true;
+                foreach (var option in specificComboOptions)
                 {
                     SpecificPlanCombo.Items.Add(option);
                 }
                 SpecificPlanCombo.SelectedIndex = 0;
             }
-            else
-            {
-                SpecificPlanCombo.IsEnabled = false;
-                QCLButton.IsEnabled = false;
-            }
         }
 
+        /// <summary>
+        /// Click event to generate QCL labels from the selected date.
+        /// </summary>
         private void QCLButton_Click(object sender, RoutedEventArgs e)
         {
-            // Clear out anything that was there before
-            QCLStackPanel.Children.Clear();
+            GenerateQCLLabels();
+        }
 
-            // Example: We’ll show how each label might have a different offset
-            // from the SelectedDay. You can adjust these offsets as you like.
-
-            // 1) "MD Contours": 2 business days after SelectedDay
-            var mdContoursDate = AddBusinessDays(SelectedDay, 2);
-            var mdContoursLabel = new Label
+        /// <summary>
+        /// TextChanged event for the SIM Review offset TextBox.
+        /// If invalid integer, show a warning. If valid, update the labels.
+        /// </summary>
+        private void SimReviewOffsetTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (QCLButton.IsEnabled)
             {
-                Content = $"MD Contours: {mdContoursDate:M/dd}"
-            };
-            QCLStackPanel.Children.Add(mdContoursLabel);
+                // Try to parse the new value
+                if (int.TryParse(SimReviewOffsetTextBox.Text, out _))
+                {
+                    // Valid integer, hide warning
+                    WarningLabel.Visibility = Visibility.Collapsed;
 
-            // 2) "Physics Pre-MD": 4 business days after SelectedDay
-            var physicsPreMdDate = AddBusinessDays(SelectedDay, 4);
-            var physicsPreMdLabel = new Label
-            {
-                Content = $"Physics Pre-MD: {physicsPreMdDate:M/dd}"
-            };
-            QCLStackPanel.Children.Add(physicsPreMdLabel);
-
-            // 3) "Physics Pre-Tx": 6 business days after SelectedDay
-            var physicsPreTxDate = AddBusinessDays(SelectedDay, 6);
-            var physicsPreTxLabel = new Label
-            {
-                Content = $"Physics Pre-Tx: {physicsPreTxDate:M/dd}"
-            };
-            QCLStackPanel.Children.Add(physicsPreTxLabel);
-
-            // 4) "Treatment": 8 business days after SelectedDay
-            var treatmentDate = AddBusinessDays(SelectedDay, 8);
-            var treatmentLabel = new Label
-            {
-                Content = $"Treatment: {treatmentDate:M/dd}"
-            };
-            QCLStackPanel.Children.Add(treatmentLabel);
+                    // If QCLButton is enabled (i.e., user has selected a site),
+                    // go ahead and regenerate the labels immediately
+                    GenerateQCLLabels();
+                }
+                else
+                {
+                    // Invalid integer, show warning and clear labels
+                    WarningLabel.Content = "Please enter a valid integer offset.";
+                    WarningLabel.Visibility = Visibility.Visible;
+                    QCLStackPanel.Children.Clear();
+                }
+            }
         }
     }
 }
