@@ -61,8 +61,9 @@ namespace QCLCalendarMaker
             MainCalendar.DisplayDateStart = today.AddDays(-30);
             MainCalendar.DisplayDateEnd = today.AddDays(30);
             SelectedDay = today;
-            MDContouringDays = 0;
-            PlanningDays = 0;
+            MDContouringDays = 2;
+            PlanningDays = 4;
+            QCLButton.Visibility = Visibility.Collapsed;
 
 
             // Initialize the first combo box
@@ -96,6 +97,41 @@ namespace QCLCalendarMaker
         /// </summary>
         private void GenerateQCLLabels()
         {
+            var selectedItem = (PlanningTypeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString();
+            var specificPlan = SpecificPlanCombo.SelectedItem.ToString();
+            if (selectedItem == "3D")
+            {
+                List<string> four_days = new List<string>() { "Lung", "Abdomen", "Rectum", "Bladder" };
+                if (specificPlan == "Palliative")
+                {
+                    PlanningDays = 2;
+                }
+                else if (four_days.Contains(specificPlan))
+                {
+                    PlanningDays = 4;
+                }
+                else
+                {
+                    PlanningDays = 5;
+                }
+            }
+            else if (selectedItem == "IMRT")
+            {
+                PlanningDays = 4;
+                List<string> five_days = new List<string>() { "Hippocampal Sparing Brain", "Breast", "CW+Nodes",
+                    "Pancreas", "GYN Post-op", "Prostate (w w/o Nodes)",
+                    "CSI Tomo"};
+                if (five_days.Contains(specificPlan))
+                {
+                    PlanningDays = 5;
+                }
+            }
+            else if (selectedItem == "SBRT")
+            {
+                // So far just one SBRT, for lung, option
+                PlanningDays = 5;
+            }
+            PlanningDaysLabel.Content = PlanningDays.ToString();
             QCLContainerStackPanel.Visibility = Visibility.Visible;
             // Always clear old labels first
             QCLStackPanel.Children.Clear();
@@ -144,13 +180,15 @@ namespace QCLCalendarMaker
         private void SpecificPlanCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // If the user picks any site (index != 0), enable QCL button
-            if (SpecificPlanCombo.SelectedIndex != 0)
+            if (SpecificPlanCombo.SelectedIndex > 0)
             {
-                QCLButton.IsEnabled = true;
+                //QCLButton.IsEnabled = true;
+                MDContouringDays = 2;
+                GenerateQCLLabels();
             }
             else
             {
-                QCLButton.IsEnabled = false;
+                //QCLButton.IsEnabled = false;
                 QCLContainerStackPanel.Visibility = Visibility.Collapsed;
             }
         }
@@ -158,7 +196,8 @@ namespace QCLCalendarMaker
         private void PlanningTypeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var selectedItem = (PlanningTypeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString();
-
+            MDContouringDays = 2;
+            SimReviewOffsetTextBox.Text = MDContouringDays.ToString();
             // Clear and reset
             SpecificPlanCombo.Items.Clear();
             SpecificPlanCombo.IsEnabled = false;
@@ -173,8 +212,7 @@ namespace QCLCalendarMaker
             {
                 specificComboOptions = new List<string>
                 {
-                    "Select one", "Palliative", "Lung", "Abdomen", "Rectum",
-                    "Bladder", "CSI", "Breast", "CW+Nodes"
+                    "Palliative", "Lung", "Abdomen", "Rectum", "Bladder", "CSI", "Breast", "CW+Nodes"
                 };
                 hasOptions = true;
             }
@@ -182,7 +220,7 @@ namespace QCLCalendarMaker
             {
                 specificComboOptions = new List<string>
                 {
-                    "Select one", "Abdomen", "Lung Non-SBRT", "GYN (intact)",
+                    "Abdomen", "Lung IMRT", "GYN (intact)",
                     "Head and Neck", "Anal+Nodes", "Brain",
                     "Esophagus", "Rectum", "Bladder",
                     "Hippocampal Sparing Brain", "Breast", "CW+Nodes",
@@ -195,14 +233,16 @@ namespace QCLCalendarMaker
             {
                 specificComboOptions = new List<string>
                 {
-                    "Select one", "Lung SBRT"
+                    "Lung SBRT"
                 };
                 hasOptions = true;
             }
 
             if (hasOptions)
             {
+                specificComboOptions.Sort();
                 SpecificPlanCombo.IsEnabled = true;
+                specificComboOptions.Insert(0, "Select one");
                 foreach (var option in specificComboOptions)
                 {
                     SpecificPlanCombo.Items.Add(option);
@@ -225,7 +265,7 @@ namespace QCLCalendarMaker
         /// </summary>
         private void SimReviewOffsetTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (QCLButton.IsEnabled)
+            if (SpecificPlanCombo.SelectedIndex > 0)
             {
                 // Try to parse the new value
                 if (int.TryParse(SimReviewOffsetTextBox.Text, out _))
