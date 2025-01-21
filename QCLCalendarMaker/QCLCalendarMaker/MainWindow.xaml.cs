@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel; // Needed for INotifyPropertyChanged
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace QCLCalendarMaker
 {
@@ -172,7 +173,8 @@ namespace QCLCalendarMaker
             DateTime startDate = AddBusinessDays(Today, MDContouringDays + PlanningDays - 1 + 3);
             Label StartReccomendationLabel = new Label
             {
-                Content = $"Recommended EARLIEST Start: {startDate:M/dd}"
+                Content = $"Recommended EARLIEST Start: {startDate:M/dd}",
+                Background= Brushes.Yellow
             };
             QCLStackPanel.Children.Add(StartReccomendationLabel);
         }
