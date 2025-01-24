@@ -10,24 +10,40 @@ namespace QCLCalendarMaker
     {
         public static List<DateTime> GetFederalHolidays(int year)
         {
-            var holidays = new List<DateTime>
+            List<DateTime> holidays = new List<DateTime>
         {
+            //RandomDay(year),
             NewYearsDay(year),
             MartinLutherKingJrDay(year),
-            PresidentsDay(year),
             MemorialDay(year),
-            Juneteenth(year),
             IndependenceDay(year),
             LaborDay(year),
-            ColumbusDay(year),
-            VeteransDay(year),
             ThanksgivingDay(year),
             ChristmasDay(year),
-            //RandomDay(year),
             //Randomday2(year)
         };
-
+            holidays = ShuffleWeekendHolidays(holidays);
             return holidays.OrderBy(h => h).ToList();
+        }
+        public static List<DateTime> ShuffleWeekendHolidays(List<DateTime> days)
+        {
+            List<DateTime> new_holidays = new List<DateTime>();
+            foreach (DateTime d in days)
+            {
+                if (d.DayOfWeek == DayOfWeek.Sunday)
+                {
+                    new_holidays.Add(d.AddDays(1));
+                }
+                else if (d.DayOfWeek == DayOfWeek.Saturday)
+                {
+                    new_holidays.Add(d.AddDays(-1));
+                }
+                else
+                {
+                    new_holidays.Add(d);
+                }
+            }
+            return new_holidays;
         }
 
         private static DateTime NewYearsDay(int year) => new DateTime(year, 1, 1);
@@ -35,8 +51,8 @@ namespace QCLCalendarMaker
         private static DateTime IndependenceDay(int year) => new DateTime(year, 7, 4);
         private static DateTime VeteransDay(int year) => new DateTime(year, 11, 11);
         private static DateTime ChristmasDay(int year) => new DateTime(year, 12, 25);
-        private static DateTime RandomDay(int year) => new DateTime(year, 1, 28);
-        private static DateTime Randomday2(int year) => new DateTime(year, 1, 29);
+        private static DateTime RandomDay(int year) => new DateTime(year, 1, 26);
+        private static DateTime Randomday2(int year) => new DateTime(year, 2, 1);
 
         // MLK Day: 3rd Monday in January
         private static DateTime MartinLutherKingJrDay(int year)

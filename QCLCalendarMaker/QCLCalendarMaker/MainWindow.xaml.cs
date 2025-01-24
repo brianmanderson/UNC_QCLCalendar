@@ -197,7 +197,7 @@ namespace QCLCalendarMaker
             QCLStackPanel.Children.Add(StartReccomendationLabel);
             if (holidays.Count > 0)
             {
-                string content = $"Holiday encountered, please verify!";
+                string content = $"Holiday encountered, please verify QCLs!";
                 foreach (DateTime holiday in holidays)
                 {
                     content += $"\n{holiday:M/dd}";
