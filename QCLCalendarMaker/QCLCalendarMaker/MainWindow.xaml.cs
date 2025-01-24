@@ -11,6 +11,8 @@ namespace QCLCalendarMaker
     {
         private DateTime Today;
         private DateTime _selectedDay;
+        bool holiday_found = false;
+        public DateTime holiday;
         public DateTime SelectedDay
         {
             get => _selectedDay;
@@ -96,6 +98,8 @@ namespace QCLCalendarMaker
                 }
                 else if (holidays.Contains(newDate))
                 {
+                    holiday_found = true;
+                    holiday = newDate;
                     continue;
                 }
                 absDays--;
@@ -189,6 +193,15 @@ namespace QCLCalendarMaker
                 Background= Brushes.Yellow
             };
             QCLStackPanel.Children.Add(StartReccomendationLabel);
+            if (holiday_found)
+            {
+                Label HolidayLabel = new Label
+                {
+                    Content = $"Holiday found, please verify! {holiday:M/dd}",
+                    Background = Brushes.Red
+                };
+                QCLStackPanel.Children.Add(HolidayLabel);
+            }
         }
 
         // --- Event Handlers ---

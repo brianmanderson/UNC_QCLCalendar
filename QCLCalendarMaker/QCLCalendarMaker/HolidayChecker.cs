@@ -22,7 +22,8 @@ namespace QCLCalendarMaker
             ColumbusDay(year),
             VeteransDay(year),
             ThanksgivingDay(year),
-            ChristmasDay(year)
+            ChristmasDay(year),
+            RandomDay(year)
         };
 
             return holidays.OrderBy(h => h).ToList();
@@ -33,6 +34,7 @@ namespace QCLCalendarMaker
         private static DateTime IndependenceDay(int year) => new DateTime(year, 7, 4);
         private static DateTime VeteransDay(int year) => new DateTime(year, 11, 11);
         private static DateTime ChristmasDay(int year) => new DateTime(year, 12, 25);
+        private static DateTime RandomDay(int year) => new DateTime(year, 1, 28);
 
         // MLK Day: 3rd Monday in January
         private static DateTime MartinLutherKingJrDay(int year)
