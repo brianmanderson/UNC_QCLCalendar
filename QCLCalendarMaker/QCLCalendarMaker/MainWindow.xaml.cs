@@ -50,7 +50,7 @@ namespace QCLCalendarMaker
                 }
             }
         }
-
+        public int DaysToPlanStart;
         public MainWindow()
         {
             InitializeComponent();
@@ -60,10 +60,12 @@ namespace QCLCalendarMaker
 
             // Initialize default values or ranges
             Today = DateTime.Now;
+            Today = new DateTime(Today.Year, Today.Month, Today.Day);
             MainCalendar.DisplayDateStart = Today.AddDays(-60);
             MainCalendar.DisplayDateEnd = Today.AddDays(60);
             MDContouringDays = 2;
             PlanningDays = 4;
+            DaysToPlanStart = 3;
             QCLButton.Visibility = Visibility.Collapsed;
 
 
@@ -80,15 +82,23 @@ namespace QCLCalendarMaker
             int absDays = Math.Abs(daysToAdd);
 
             DateTime newDate = startDate;
+            List<DateTime> holidays = USHolidays.GetFederalHolidays(startDate.Year);
             while (absDays > 0)
             {
                 newDate = newDate.AddDays(direction);
-
-                if (newDate.DayOfWeek != DayOfWeek.Saturday &&
-                    newDate.DayOfWeek != DayOfWeek.Sunday)
+                if (newDate.DayOfWeek == DayOfWeek.Sunday)
                 {
-                    absDays--;
+                    continue;
                 }
+                else if (newDate.DayOfWeek == DayOfWeek.Saturday)
+                {
+                    continue;
+                }
+                else if (holidays.Contains(newDate))
+                {
+                    continue;
+                }
+                absDays--;
             }
             return newDate;
         }
@@ -100,8 +110,10 @@ namespace QCLCalendarMaker
         {
             var selectedItem = (PlanningTypeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString();
             var specificPlan = SpecificPlanCombo.SelectedItem.ToString();
+            DaysToPlanStart = 3;
             if (selectedItem == "3D")
             {
+                DaysToPlanStart = 2;
                 List<string> four_days = new List<string>() { "Lung", "Abdomen", "Rectum", "Bladder" };
                 if (specificPlan == "Palliative")
                 {
@@ -164,13 +176,13 @@ namespace QCLCalendarMaker
             QCLStackPanel.Children.Add(mdContoursQCLLabel);
 
             // 2) "DOS Tx Planning" is 8 business days from SelectedDay (unchanged).
-            DateTime treatmentDate = AddBusinessDays(Today, MDContouringDays + PlanningDays - 1);
+            DateTime treatmentDate = AddBusinessDays(Today, MDContouringDays + PlanningDays);
             Label treatmentLabel = new Label
             {
                 Content = $"DOS Tx Planning: {treatmentDate:M/dd}"
             };
             QCLStackPanel.Children.Add(treatmentLabel);
-            DateTime startDate = AddBusinessDays(Today, MDContouringDays + PlanningDays - 1 + 3);
+            DateTime startDate = AddBusinessDays(Today, MDContouringDays + PlanningDays + DaysToPlanStart);
             Label StartReccomendationLabel = new Label
             {
                 Content = $"Recommended EARLIEST Start: {startDate:M/dd}",
