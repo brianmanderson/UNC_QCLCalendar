@@ -11,8 +11,7 @@ namespace QCLCalendarMaker
     {
         private DateTime Today;
         private DateTime _selectedDay;
-        bool holiday_found = false;
-        public DateTime holiday;
+        public List<DateTime> holidays = new List<DateTime>();
         public DateTime SelectedDay
         {
             get => _selectedDay;
@@ -84,7 +83,7 @@ namespace QCLCalendarMaker
             int absDays = Math.Abs(daysToAdd);
 
             DateTime newDate = startDate;
-            List<DateTime> holidays = USHolidays.GetFederalHolidays(startDate.Year);
+            List<DateTime> US_holidays = USHolidays.GetFederalHolidays(startDate.Year);
             while (absDays > 0)
             {
                 newDate = newDate.AddDays(direction);
@@ -96,10 +95,12 @@ namespace QCLCalendarMaker
                 {
                     continue;
                 }
-                else if (holidays.Contains(newDate))
+                else if (US_holidays.Contains(newDate))
                 {
-                    holiday_found = true;
-                    holiday = newDate;
+                    if (!holidays.Contains(newDate))
+                    {
+                        holidays.Add(newDate);
+                    }
                     continue;
                 }
                 absDays--;
@@ -112,6 +113,7 @@ namespace QCLCalendarMaker
         /// </summary>
         private void GenerateQCLLabels()
         {
+            holidays = new List<DateTime>();
             var selectedItem = (PlanningTypeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString();
             var specificPlan = SpecificPlanCombo.SelectedItem.ToString();
             DaysToPlanStart = 3;
@@ -193,11 +195,16 @@ namespace QCLCalendarMaker
                 Background= Brushes.Yellow
             };
             QCLStackPanel.Children.Add(StartReccomendationLabel);
-            if (holiday_found)
+            if (holidays.Count > 0)
             {
+                string content = $"Holiday encountered, please verify!";
+                foreach (DateTime holiday in holidays)
+                {
+                    content += $"\n{holiday:M/dd}";
+                }
                 Label HolidayLabel = new Label
                 {
-                    Content = $"Holiday found, please verify! {holiday:M/dd}",
+                    Content = content,
                     Background = Brushes.Red
                 };
                 QCLStackPanel.Children.Add(HolidayLabel);
