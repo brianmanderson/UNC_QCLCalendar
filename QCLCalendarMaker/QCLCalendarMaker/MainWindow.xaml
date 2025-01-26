@@ -51,15 +51,14 @@
                HorizontalAlignment="Left" 
                Margin="315,126,0,0" 
                VerticalAlignment="Top"/>
-        <Button x:Name="QCLButton"
-                Content="Calculate QCLs from selected date"
+        <Button x:Name="ModalitySiteButton"
+                Content="Edit Modality/Sites"
                 HorizontalAlignment="Left"
                 Margin="21,260,0,0"
                 VerticalAlignment="Top"
                 Height="48"
                 Width="251"
-                IsEnabled="False"
-                Click="QCLButton_Click"/>
+                Click="EditModalityButton_Click"/>
         <!-- StackPanel holding offset entry, warning, and QCL result labels -->
         <StackPanel x:Name="QCLContainerStackPanel"
                     Margin="352,175,0,0"

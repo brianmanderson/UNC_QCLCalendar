@@ -165,7 +165,6 @@ namespace QCLCalendarMaker
             Today = new DateTime(Today.Year, Today.Month, Today.Day);
             MainCalendar.DisplayDateStart = Today.AddDays(-60);
             MainCalendar.DisplayDateEnd = Today.AddDays(60);
-            QCLButton.Visibility = Visibility.Collapsed;
             QCLContainerStackPanel.Visibility = Visibility.Collapsed;
 
             PlanningTypeCombo.SelectedIndex = -1;
@@ -296,14 +295,12 @@ namespace QCLCalendarMaker
             // If the user picks any site (index != 0), enable QCL button
             if (SpecificPlanCombo.SelectedIndex > -1)
             {
-                //QCLButton.IsEnabled = true;
                 MDContouringDays = ((TreatmentClass)SpecificPlanCombo.SelectedItem).ContouringDays;
                 SimReviewOffsetTextBox.Text = MDContouringDays.ToString();
                 GenerateQCLLabels();
             }
             else
             {
-                //QCLButton.IsEnabled = false;
                 QCLContainerStackPanel.Visibility = Visibility.Collapsed;
             }
         }
@@ -334,9 +331,6 @@ namespace QCLCalendarMaker
         /// <summary>
         /// Click event to generate QCL labels from the selected date.
         /// </summary>
-        private void QCLButton_Click(object sender, RoutedEventArgs e)
-        {
-        }
 
         /// <summary>
         /// TextChanged event for the SIM Review offset TextBox.
@@ -352,7 +346,6 @@ namespace QCLCalendarMaker
                     // Valid integer, hide warning
                     WarningLabel.Visibility = Visibility.Collapsed;
 
-                    // If QCLButton is enabled (i.e., user has selected a site),
                     // go ahead and regenerate the labels immediately
                     GenerateQCLLabels();
                 }
@@ -364,6 +357,11 @@ namespace QCLCalendarMaker
                     QCLStackPanel.Children.Clear();
                 }
             }
+        }
+
+        private void EditModalityButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
