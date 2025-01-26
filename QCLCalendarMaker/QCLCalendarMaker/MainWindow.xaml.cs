@@ -54,6 +54,13 @@ namespace QCLCalendarMaker
         }
         public int DaysToPlanStart;
         public List<ModalityClass> Modalities { get; set; }
+
+        public static List<ModalityClass> ReturnUNCModalities()
+        {
+            List<ModalityClass> UNCModalities = new List<ModalityClass>();
+
+            return UNCModalities;
+        }
         public MainWindow()
         {
             InitializeComponent();
@@ -80,8 +87,8 @@ namespace QCLCalendarMaker
                     Modality = "3D",
                     Treatments = new List<TreatmentClass>
                     {
-                        new TreatmentClass { Site = "Lung",     ContouringDays = 2, PlanningDays = 4 },
-                        new TreatmentClass { Site = "Prostate", ContouringDays = 3, PlanningDays = 4 },
+                        new TreatmentClass { Site = "Lung",     ContouringDays = 2, PlanningDays = 4, PlanningToStart = 2 },
+                        new TreatmentClass { Site = "Prostate", ContouringDays = 3, PlanningDays = 4 , PlanningToStart = 2},
                     }
                 },
                 new ModalityClass
@@ -89,8 +96,8 @@ namespace QCLCalendarMaker
                     Modality = "IMRT",
                     Treatments = new List<TreatmentClass>
                     {
-                        new TreatmentClass { Site = "Prostate", ContouringDays = 5, PlanningDays = 5 },
-                        new TreatmentClass { Site = "Breast",   ContouringDays = 3, PlanningDays = 4 },
+                        new TreatmentClass { Site = "Prostate", ContouringDays = 5, PlanningDays = 5, PlanningToStart = 2 },
+                        new TreatmentClass { Site = "Breast",   ContouringDays = 3, PlanningDays = 4, PlanningToStart = 2 },
                     }
                 },
                 new ModalityClass
@@ -98,7 +105,7 @@ namespace QCLCalendarMaker
                     Modality = "VMAT",
                     Treatments = new List<TreatmentClass>
                     {
-                        new TreatmentClass { Site = "Prostate", ContouringDays = 5, PlanningDays = 5 }
+                        new TreatmentClass { Site = "Prostate", ContouringDays = 5, PlanningDays = 5, PlanningToStart = 2 }
                     }
                 }
                 // Add more if needed...
@@ -200,7 +207,7 @@ namespace QCLCalendarMaker
             Label StartReccomendationLabel = new Label
             {
                 Content = $"Recommended EARLIEST Start: {startDate:M/dd}",
-                Background= Brushes.Yellow
+                Background = Brushes.Yellow
             };
             QCLStackPanel.Children.Add(StartReccomendationLabel);
             if (holidays.Count > 0)

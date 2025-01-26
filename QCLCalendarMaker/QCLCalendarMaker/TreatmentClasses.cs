@@ -11,6 +11,7 @@ namespace QCLCalendarMaker
         public string Site { get; set; }           // e.g., "Lung", "Prostate", "Breast"
         public int PlanningDays { get; set; }      // e.g., 4
         public int ContouringDays { get; set; }    // e.g., 2
+        public int PlanningToStart { get; set; }
     }
     public class ModalityClass
     {
