@@ -361,7 +361,8 @@ namespace QCLCalendarMaker
 
         private void EditModalityButton_Click(object sender, RoutedEventArgs e)
         {
-
+            ModalitySiteWindow site_window = new ModalitySiteWindow(Modalities);
+            site_window.ShowDialog();
         }
     }
 }
