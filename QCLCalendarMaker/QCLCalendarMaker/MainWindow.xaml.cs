@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel; // Needed for INotifyPropertyChanged
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -52,6 +53,7 @@ namespace QCLCalendarMaker
             }
         }
         public int DaysToPlanStart;
+        public List<ModalityClass> Modalities { get; set; }
         public MainWindow()
         {
             InitializeComponent();
@@ -70,8 +72,46 @@ namespace QCLCalendarMaker
             QCLButton.Visibility = Visibility.Collapsed;
 
 
-            // Initialize the first combo box
             PlanningTypeCombo.SelectedIndex = 0;
+            Modalities = new List<ModalityClass>
+            {
+                new ModalityClass
+                {
+                    Modality = "3D",
+                    Treatments = new List<TreatmentClass>
+                    {
+                        new TreatmentClass { Site = "Lung",     ContouringDays = 2, PlanningDays = 4 },
+                        new TreatmentClass { Site = "Prostate", ContouringDays = 3, PlanningDays = 4 },
+                    }
+                },
+                new ModalityClass
+                {
+                    Modality = "IMRT",
+                    Treatments = new List<TreatmentClass>
+                    {
+                        new TreatmentClass { Site = "Prostate", ContouringDays = 5, PlanningDays = 5 },
+                        new TreatmentClass { Site = "Breast",   ContouringDays = 3, PlanningDays = 4 },
+                    }
+                },
+                new ModalityClass
+                {
+                    Modality = "VMAT",
+                    Treatments = new List<TreatmentClass>
+                    {
+                        new TreatmentClass { Site = "Prostate", ContouringDays = 5, PlanningDays = 5 }
+                    }
+                }
+                // Add more if needed...
+            };
+            // Initialize the first combo box
+            PlanningTypeCombo.ItemsSource = Modalities;
+            PlanningTypeCombo.DisplayMemberPath = "Modality";
+
+            // Optionally, pre-select the first item or do something else...
+            if (Modalities.Any())
+            {
+                PlanningTypeCombo.SelectedIndex = 0;
+            }
         }
 
         /// <summary>
@@ -115,41 +155,9 @@ namespace QCLCalendarMaker
         {
             holidays = new List<DateTime>();
             var selectedItem = (PlanningTypeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString();
-            var specificPlan = SpecificPlanCombo.SelectedItem.ToString();
-            DaysToPlanStart = 3;
-            if (selectedItem == "3D")
-            {
-                DaysToPlanStart = 2;
-                List<string> four_days = new List<string>() { "Lung", "Abdomen", "Rectum", "Bladder" };
-                if (specificPlan == "Palliative")
-                {
-                    PlanningDays = 2;
-                }
-                else if (four_days.Contains(specificPlan))
-                {
-                    PlanningDays = 4;
-                }
-                else
-                {
-                    PlanningDays = 5;
-                }
-            }
-            else if (selectedItem == "IMRT")
-            {
-                PlanningDays = 4;
-                List<string> five_days = new List<string>() { "Hippocampal Sparing Brain", "Breast", "CW+Nodes",
-                    "Pancreas", "GYN Post-op", "Prostate (w w/o Nodes)",
-                    "CSI Tomo"};
-                if (five_days.Contains(specificPlan))
-                {
-                    PlanningDays = 5;
-                }
-            }
-            else if (selectedItem == "SBRT")
-            {
-                // So far just one SBRT, for lung, option
-                PlanningDays = 5;
-            }
+            TreatmentClass specificPlan = SpecificPlanCombo.SelectedItem as TreatmentClass;
+            PlanningDays = specificPlan.PlanningDays;
+            DaysToPlanStart = 2;
             PlanningDaysLabel.Content = PlanningDays.ToString();
             QCLContainerStackPanel.Visibility = Visibility.Visible;
             // Always clear old labels first
@@ -223,7 +231,7 @@ namespace QCLCalendarMaker
             if (SpecificPlanCombo.SelectedIndex > 0)
             {
                 //QCLButton.IsEnabled = true;
-                MDContouringDays = 2;
+                MDContouringDays = ((TreatmentClass)SpecificPlanCombo.SelectedItem).ContouringDays;
                 GenerateQCLLabels();
             }
             else
@@ -235,59 +243,24 @@ namespace QCLCalendarMaker
 
         private void PlanningTypeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedItem = (PlanningTypeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString();
-            MDContouringDays = 2;
-            SimReviewOffsetTextBox.Text = MDContouringDays.ToString();
-            // Clear and reset
-            SpecificPlanCombo.Items.Clear();
+            // Clear out the second combo
+            SpecificPlanCombo.ItemsSource = null;
+
+            // Grab the selected ModalityClass object
+            var selectedModality = PlanningTypeCombo.SelectedItem as ModalityClass;
             SpecificPlanCombo.IsEnabled = false;
-            QCLContainerStackPanel.Visibility = Visibility.Collapsed;
-            QCLButton.IsEnabled = false;
+            if (selectedModality != null)
+            {
+                // Populate the SpecificPlanCombo with the 'Site' from each TreatmentClass
+                SpecificPlanCombo.ItemsSource = selectedModality.Treatments;
+                SpecificPlanCombo.DisplayMemberPath = "Site";
 
-            // Decide which list to show
-            List<string> specificComboOptions = new List<string>();
-            bool hasOptions = false;
-
-            if (selectedItem == "3D")
-            {
-                specificComboOptions = new List<string>
+                // Optionally set a default selection
+                if (selectedModality.Treatments.Any())
                 {
-                    "Palliative", "Lung", "Abdomen", "Rectum", "Bladder", "CSI", "Breast", "CW+Nodes"
-                };
-                hasOptions = true;
-            }
-            else if (selectedItem == "IMRT")
-            {
-                specificComboOptions = new List<string>
-                {
-                    "Abdomen", "Lung IMRT", "GYN (intact)",
-                    "Head and Neck", "Anal+Nodes", "Brain",
-                    "Esophagus", "Rectum", "Bladder",
-                    "Hippocampal Sparing Brain", "Breast", "CW+Nodes",
-                    "Pancreas", "GYN Post-op", "Prostate (w w/o Nodes)",
-                    "CSI Tomo"
-                };
-                hasOptions = true;
-            }
-            else if (selectedItem == "SBRT")
-            {
-                specificComboOptions = new List<string>
-                {
-                    "Lung SBRT"
-                };
-                hasOptions = true;
-            }
-
-            if (hasOptions)
-            {
-                specificComboOptions.Sort();
-                SpecificPlanCombo.IsEnabled = true;
-                specificComboOptions.Insert(0, "Select one");
-                foreach (var option in specificComboOptions)
-                {
-                    SpecificPlanCombo.Items.Add(option);
+                    SpecificPlanCombo.SelectedIndex = 0;
+                    SpecificPlanCombo.IsEnabled = true;
                 }
-                SpecificPlanCombo.SelectedIndex = 0;
             }
         }
 
