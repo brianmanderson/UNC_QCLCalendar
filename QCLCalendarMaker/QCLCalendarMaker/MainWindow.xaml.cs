@@ -53,7 +53,7 @@ namespace QCLCalendarMaker
             }
         }
         public int DaysToPlanStart;
-        public List<ModalityClass> Modalities { get; set; }
+        public List<ModalityClass> Modalities { get; set; } = new List<ModalityClass>();
 
         public static List<ModalityClass> ReturnUNCModalities()
         {
@@ -143,7 +143,7 @@ namespace QCLCalendarMaker
             QCLContainerStackPanel.Visibility = Visibility.Collapsed;
 
             PlanningTypeCombo.SelectedIndex = -1;
-            Modalities = ReturnUNCModalities();
+            firstbuild();
             // Initialize the first combo box
             PlanningTypeCombo.ItemsSource = Modalities;
             PlanningTypeCombo.DisplayMemberPath = "Modality";
@@ -156,7 +156,10 @@ namespace QCLCalendarMaker
         }
         private void firstbuild()
         {
-
+            if (Modalities.Count == 0)
+            {
+                Modalities = ReturnUNCModalities();
+            }
         }
 
         /// <summary>
