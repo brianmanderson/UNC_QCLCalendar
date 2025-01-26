@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel; // Needed for INotifyPropertyChanged
+using System.IO;
+using System.Text.Json;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -130,9 +132,33 @@ namespace QCLCalendarMaker
         public MainWindow()
         {
             InitializeComponent();
+            string filePath = Path.Combine(".", "Modalities.json");
 
+            if (File.Exists(filePath))
+            {
+                try
+                {
+                    string json = File.ReadAllText(filePath);
+                    Modalities = JsonSerializer.Deserialize<List<ModalityClass>>(json);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error reading {filePath}:\n{ex.Message}");
+                    // Fallback or set a default
+                    Modalities = ReturnUNCModalities();
+                }
+            }
+            else
+            {
+                // If file doesn't exist, start with default data
+                Modalities = ReturnUNCModalities();
+            }
+            string jsonString = JsonSerializer.Serialize(Modalities, new JsonSerializerOptions { WriteIndented = true });
+
+            // 4) Write to the file
+            File.WriteAllText(filePath, jsonString);
             // Set the DataContext to this window so bindings work
-            this.DataContext = this;
+            DataContext = this;
 
             // Initialize default values or ranges
             Today = DateTime.Now;
@@ -143,7 +169,6 @@ namespace QCLCalendarMaker
             QCLContainerStackPanel.Visibility = Visibility.Collapsed;
 
             PlanningTypeCombo.SelectedIndex = -1;
-            firstbuild();
             // Initialize the first combo box
             PlanningTypeCombo.ItemsSource = Modalities;
             PlanningTypeCombo.DisplayMemberPath = "Modality";
@@ -152,13 +177,6 @@ namespace QCLCalendarMaker
             if (Modalities.Any())
             {
                 PlanningTypeCombo.SelectedIndex = -1;
-            }
-        }
-        private void firstbuild()
-        {
-            if (Modalities.Count == 0)
-            {
-                Modalities = ReturnUNCModalities();
             }
         }
 
