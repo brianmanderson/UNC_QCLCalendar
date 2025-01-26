@@ -57,7 +57,59 @@ namespace QCLCalendarMaker
 
         public static List<ModalityClass> ReturnUNCModalities()
         {
-            List<ModalityClass> UNCModalities = new List<ModalityClass>();
+            List<ModalityClass> UNCModalities = new List<ModalityClass>()
+            {
+        // ----------------- 3D -----------------
+        new ModalityClass
+        {
+            Modality = "3D",
+            Treatments = new List<TreatmentClass>
+            {
+                // Palliative => 2 days
+                new TreatmentClass
+                {
+                    Site          = "Palliative",
+                    PlanningDays  = 2,
+                    PlanningToStart = 2,
+                    ContouringDays = 2   // If you want to store a default or omit
+                },
+
+                // The "four_days" group => 4 days
+                new TreatmentClass { Site = "Lung",     PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Abdomen",  PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Rectum",   PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Bladder",  PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
+            }
+        },
+
+        // ----------------- IMRT -----------------
+        new ModalityClass
+        {
+            Modality = "IMRT",
+            Treatments = new List<TreatmentClass>
+            {
+                // The five_days group => 5 days
+                new TreatmentClass { Site = "Hippocampal Sparing Brain", PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Breast",                    PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "CW+Nodes",                  PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Pancreas",                  PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "GYN Post-op",               PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Prostate (w w/o Nodes)",    PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "CSI Tomo",                  PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+            }
+        },
+
+        // ----------------- SBRT -----------------
+        new ModalityClass
+        {
+            Modality = "SBRT",
+            Treatments = new List<TreatmentClass>
+            {
+                // So far we only have "Lung", but your code sets everything to 5 days
+                new TreatmentClass { Site = "Lung", PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+            }
+        }
+            };
 
             return UNCModalities;
         }
@@ -77,39 +129,10 @@ namespace QCLCalendarMaker
             PlanningDays = 4;
             DaysToPlanStart = 3;
             QCLButton.Visibility = Visibility.Collapsed;
+            QCLContainerStackPanel.Visibility = Visibility.Collapsed;
 
-
-            PlanningTypeCombo.SelectedIndex = 0;
-            Modalities = new List<ModalityClass>
-            {
-                new ModalityClass
-                {
-                    Modality = "3D",
-                    Treatments = new List<TreatmentClass>
-                    {
-                        new TreatmentClass { Site = "Lung",     ContouringDays = 2, PlanningDays = 4, PlanningToStart = 2 },
-                        new TreatmentClass { Site = "Prostate", ContouringDays = 3, PlanningDays = 4 , PlanningToStart = 2},
-                    }
-                },
-                new ModalityClass
-                {
-                    Modality = "IMRT",
-                    Treatments = new List<TreatmentClass>
-                    {
-                        new TreatmentClass { Site = "Prostate", ContouringDays = 5, PlanningDays = 5, PlanningToStart = 2 },
-                        new TreatmentClass { Site = "Breast",   ContouringDays = 3, PlanningDays = 4, PlanningToStart = 2 },
-                    }
-                },
-                new ModalityClass
-                {
-                    Modality = "VMAT",
-                    Treatments = new List<TreatmentClass>
-                    {
-                        new TreatmentClass { Site = "Prostate", ContouringDays = 5, PlanningDays = 5, PlanningToStart = 2 }
-                    }
-                }
-                // Add more if needed...
-            };
+            PlanningTypeCombo.SelectedIndex = -1;
+            Modalities = ReturnUNCModalities();
             // Initialize the first combo box
             PlanningTypeCombo.ItemsSource = Modalities;
             PlanningTypeCombo.DisplayMemberPath = "Modality";
@@ -117,8 +140,12 @@ namespace QCLCalendarMaker
             // Optionally, pre-select the first item or do something else...
             if (Modalities.Any())
             {
-                PlanningTypeCombo.SelectedIndex = 0;
+                PlanningTypeCombo.SelectedIndex = -1;
             }
+        }
+        private void firstbuild()
+        {
+
         }
 
         /// <summary>
@@ -235,7 +262,7 @@ namespace QCLCalendarMaker
         private void SpecificPlanCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // If the user picks any site (index != 0), enable QCL button
-            if (SpecificPlanCombo.SelectedIndex > 0)
+            if (SpecificPlanCombo.SelectedIndex > -1)
             {
                 //QCLButton.IsEnabled = true;
                 MDContouringDays = ((TreatmentClass)SpecificPlanCombo.SelectedItem).ContouringDays;
@@ -265,7 +292,7 @@ namespace QCLCalendarMaker
                 // Optionally set a default selection
                 if (selectedModality.Treatments.Any())
                 {
-                    SpecificPlanCombo.SelectedIndex = 0;
+                    SpecificPlanCombo.SelectedIndex = -1;
                     SpecificPlanCombo.IsEnabled = true;
                 }
             }
