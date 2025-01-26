@@ -79,6 +79,9 @@ namespace QCLCalendarMaker
                 new TreatmentClass { Site = "Abdomen",  PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
                 new TreatmentClass { Site = "Rectum",   PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
                 new TreatmentClass { Site = "Bladder",  PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "CSI",  PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Breast",  PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "CW+Nodes",  PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2}
             }
         },
 
@@ -89,13 +92,24 @@ namespace QCLCalendarMaker
             Treatments = new List<TreatmentClass>
             {
                 // The five_days group => 5 days
-                new TreatmentClass { Site = "Hippocampal Sparing Brain", PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
-                new TreatmentClass { Site = "Breast",                    PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
-                new TreatmentClass { Site = "CW+Nodes",                  PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Abdomen", PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Lung", PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "GYN (Intact)", PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Anal+Nodes",                    PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Brain",                  PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Esophagus",                  PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Rectum",               PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Bladder",    PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "CSI Tomo",                  PlanningDays = 4, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Hippocampal",                  PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Breast",                  PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Chestwall+Nodes",                  PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
                 new TreatmentClass { Site = "Pancreas",                  PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
-                new TreatmentClass { Site = "GYN Post-op",               PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
-                new TreatmentClass { Site = "Prostate (w w/o Nodes)",    PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
-                new TreatmentClass { Site = "CSI Tomo",                  PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "GYN (Post-Operative)",                  PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Prostate+Nodes",                  PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "Prostate Alone", PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+                new TreatmentClass { Site = "CSI Tomo", PlanningDays = 5, PlanningToStart = 2, ContouringDays = 2},
+
             }
         },
 
