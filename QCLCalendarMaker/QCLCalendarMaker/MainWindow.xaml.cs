@@ -139,9 +139,6 @@ namespace QCLCalendarMaker
             Today = new DateTime(Today.Year, Today.Month, Today.Day);
             MainCalendar.DisplayDateStart = Today.AddDays(-60);
             MainCalendar.DisplayDateEnd = Today.AddDays(60);
-            MDContouringDays = 2;
-            PlanningDays = 4;
-            DaysToPlanStart = 3;
             QCLButton.Visibility = Visibility.Collapsed;
             QCLContainerStackPanel.Visibility = Visibility.Collapsed;
 
@@ -280,6 +277,7 @@ namespace QCLCalendarMaker
             {
                 //QCLButton.IsEnabled = true;
                 MDContouringDays = ((TreatmentClass)SpecificPlanCombo.SelectedItem).ContouringDays;
+                SimReviewOffsetTextBox.Text = MDContouringDays.ToString();
                 GenerateQCLLabels();
             }
             else
@@ -317,7 +315,6 @@ namespace QCLCalendarMaker
         /// </summary>
         private void QCLButton_Click(object sender, RoutedEventArgs e)
         {
-            GenerateQCLLabels();
         }
 
         /// <summary>
@@ -326,7 +323,7 @@ namespace QCLCalendarMaker
         /// </summary>
         private void SimReviewOffsetTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (SpecificPlanCombo.SelectedIndex > 0)
+            if (SpecificPlanCombo.SelectedIndex > -1)
             {
                 // Try to parse the new value
                 if (int.TryParse(SimReviewOffsetTextBox.Text, out _))
