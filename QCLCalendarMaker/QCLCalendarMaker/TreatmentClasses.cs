@@ -10,6 +10,12 @@ namespace QCLCalendarMaker
         public bool Highlight { get; set; }
         public bool Editable { get; set; } = false;
     }
+    public class TaskSet
+    {
+        public string TaskSetName { get; set; }
+        public List<IndividualTask> Tasks { get; set; }
+    }
+
     public class TreatmentClass
     {
         public string Site { get; set; }           // e.g., "Lung", "Prostate", "Breast"

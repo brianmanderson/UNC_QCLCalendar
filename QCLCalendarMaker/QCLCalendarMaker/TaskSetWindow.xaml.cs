@@ -15,14 +15,18 @@ using System.Windows.Shapes;
 namespace QCLCalendarMaker
 {
     /// <summary>
-    /// Interaction logic for ModalitySiteWindow.xaml
+    /// Interaction logic for TaskSetWindow.xaml
     /// </summary>
-    public partial class ModalitySiteWindow : Window
+    public partial class TaskSetWindow : Window
     {
-        public string TaskSetName { get; set; }
-        public ModalitySiteWindow(List<ModalityClass> modalities)
+        public List<TaskSet> TaskSets = new List<TaskSet>();
+        public TaskSetWindow()
         {
             InitializeComponent();
+            TaskSetComboBox.SelectedIndex = -1;
+            // Initialize the first combo box
+            TaskSetComboBox.ItemsSource = TaskSets;
+            TaskSetComboBox.DisplayMemberPath = "TaskSetName";
         }
     }
 }
