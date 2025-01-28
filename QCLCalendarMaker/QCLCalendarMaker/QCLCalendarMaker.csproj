@@ -89,6 +89,9 @@
     <Compile Include="ModalitySiteWindow.xaml.cs">
       <DependentUpon>ModalitySiteWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TaskSetWindow.xaml.cs">
+      <DependentUpon>TaskSetWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TreatmentClasses.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -104,6 +107,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="ModalitySiteWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TaskSetWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

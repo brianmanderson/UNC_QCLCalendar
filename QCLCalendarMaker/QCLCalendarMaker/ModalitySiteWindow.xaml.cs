@@ -24,5 +24,11 @@ namespace QCLCalendarMaker
         {
             InitializeComponent();
         }
+
+        private void OpenTestSetWindow_Click(object sender, RoutedEventArgs e)
+        {
+            TaskSetWindow testSetWindow = new TaskSetWindow();
+            testSetWindow.ShowDialog();
+        }
     }
 }

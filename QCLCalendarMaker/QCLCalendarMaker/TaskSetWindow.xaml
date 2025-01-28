@@ -6,49 +6,61 @@
         xmlns:local="clr-namespace:QCLCalendarMaker"
         mc:Ignorable="d"
         Title="TaskSetWindow" Height="450" Width="600">
-    <Grid>
-        <StackPanel Margin="29,65,0,0"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    Height="294" Width="525">
-            <StackPanel Margin="0,0,0,0"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Left">
-                <ComboBox x:Name="TaskSetComboBox"
-                      Margin="0,0,0,0"
-                      Width="240"
-                      SelectionChanged="TaskSetCombo_SelectionChanged"/>
-                <TextBox x:Name="NewTaskSetTextBox"
-                         Width="133"
-                         Text="{Binding TaskSetName, Mode=TwoWay}"
-                         TextChanged="NewTaskSetTextBox_TextChanged"/>
-                <Button Content="Add New Task Set" Width="104" Click="Button_Click"/>
-            </StackPanel>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-            <StackPanel Margin="0,10,0,0"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Left">
-                <Label Content="Task Name" Width="133"/>
-                <Label Content="Days for task" Width="100"/>
-            </StackPanel>
-            <StackPanel Margin="0,10,0,0"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Left">
-                <TextBox x:Name="NewTaskNameTextBox"
-                         Width="133"
-                         TextChanged="NewTaskSetTextBox_TextChanged"/>
-                <TextBox x:Name="DaysOffsetTextBox"
-                         Width="100"
-                         TextChanged="NewTaskSetTextBox_TextChanged"/>
-                <CheckBox x:Name="AllowEditCheckBox" Content="Allow Edit?"/>
-                <CheckBox x:Name="HighlightCheckBox" Content="Highlight?" Background="Yellow"/>
-                <Button x:Name="AddNewTaskButton" Content="Add New Task" Width="104" Click="AddTask_Click"/>
-            </StackPanel>
-            <StackPanel Margin="0,20,0,0"
-                        x:Name="TaskStackPanel"
-                        Orientation="Vertical"
-                        HorizontalAlignment="Left">
-            </StackPanel>
+        <!-- ComboBox to display available TaskSets -->
+        <ComboBox x:Name="TaskSetComboBox"
+                  Grid.Row="0"
+                  Width="200"
+                  Margin="0,0,0,10"
+                  DisplayMemberPath="TaskSetName"
+                  SelectionChanged="TaskSetComboBox_SelectionChanged"/>
+
+        <!-- This StackPanel will list the tasks of the selected TaskSet -->
+        <StackPanel x:Name="TaskStackPanel"
+                    Grid.Row="1"
+                    Orientation="Vertical"
+                    Margin="0,0,0,10" />
+
+        <!-- Controls to add a new Task to the currently selected TaskSet -->
+        <StackPanel Orientation="Horizontal" Grid.Row="2">
+            <!-- Name of new task -->
+            <TextBox x:Name="NewTaskNameTextBox"
+                     Width="120"
+                     Margin="0,0,10,0"
+                     VerticalAlignment="Center"
+                     TextChanged="NewTaskNameTextBox_TextChanged"/>
+
+            <!-- Days offset (must be an integer) -->
+            <TextBox x:Name="DaysOffsetTextBox"
+                     Width="60"
+                     Margin="0,0,10,0"
+                     VerticalAlignment="Center"
+                     TextChanged="DaysOffsetTextBox_TextChanged"/>
+
+            <!-- Highlight option -->
+            <CheckBox x:Name="HighlightCheckBox"
+                      Content="Highlight"
+                      Margin="0,0,10,0"
+                      VerticalAlignment="Center"/>
+
+            <!-- Editable option -->
+            <CheckBox x:Name="AllowEditCheckBox"
+                      Content="Editable"
+                      Margin="0,0,10,0"
+                      VerticalAlignment="Center"/>
+
+            <!-- Button to add new task -->
+            <Button x:Name="AddTaskButton"
+                    Content="Add Task"
+                    IsEnabled="False"
+                    Click="AddTaskButton_Click"
+                    VerticalAlignment="Center"/>
         </StackPanel>
     </Grid>
 </Window>
