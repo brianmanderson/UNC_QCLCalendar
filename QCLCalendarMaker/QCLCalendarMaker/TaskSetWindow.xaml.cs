@@ -109,16 +109,81 @@ namespace QCLCalendarMaker
                 int total_days = 0;
                 foreach (IndividualTask task in selectedTaskSet.Tasks)
                 {
-                    StackPanel new_row = new StackPanel();
-                    new_row.Orientation = Orientation.Horizontal;
-                    TaskStackPanel.Children.Add(
-                        new TextBlock { Text = $"{task.TaskName} requires {task.DaysNeeded} days from previous task. {total_days} from beginning" }
-                    );
-                    total_days += task.DaysNeeded;
+                    // Create a horizontal panel for this task
+                    StackPanel stackPanel = new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        Margin = new Thickness(0, 5, 0, 5),
+                        DataContext = task  // So binding can pick up from "task"
+                    };
+
+                    // 1) Display the TaskName as a read-only TextBlock
+                    TextBlock nameTextBlock = new TextBlock
+                    {
+                        Text = task.TaskName,
+                        Margin = new Thickness(0, 0, 20, 0)
+                    };
+                    stackPanel.Children.Add(nameTextBlock);
+
+                    // 2) A TextBlock *two-way* bound to 'DaysNeeded'
+                    TextBlock daysTextBlock = new TextBlock { Margin = new Thickness(0, 0, 20, 0) };
+                    Binding daysBinding = new Binding("DaysNeeded")
+                    {
+                        Mode = BindingMode.TwoWay,
+                        UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+                    };
+                    daysTextBlock.SetBinding(TextBlock.TextProperty, daysBinding);
+                    stackPanel.Children.Add(daysTextBlock);
+
+                    // 3) A CheckBox bound to 'Editable'
+                    CheckBox editableCheckBox = new CheckBox
+                    {
+                        Content = "Editable",
+                        Margin = new Thickness(0, 0, 10, 0)
+                    };
+                    Binding editableBinding = new Binding("Editable")
+                    {
+                        Mode = BindingMode.TwoWay,
+                        UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+                    };
+                    editableCheckBox.SetBinding(CheckBox.IsCheckedProperty, editableBinding);
+                    stackPanel.Children.Add(editableCheckBox);
+
+                    // 4) A CheckBox bound to 'Highlight'
+                    CheckBox highlightCheckBox = new CheckBox
+                    {
+                        Content = "Highlight",
+                        Margin = new Thickness(0, 0, 20, 0)
+                    };
+                    Binding highlightBinding = new Binding("Highlight")
+                    {
+                        Mode = BindingMode.TwoWay,
+                        UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+                    };
+                    highlightCheckBox.SetBinding(CheckBox.IsCheckedProperty, highlightBinding);
+                    stackPanel.Children.Add(highlightCheckBox);
+
+                    // 5) A "Delete?" Button that removes the task from the set
+                    Button deleteButton = new Button
+                    {
+                        Content = "Delete?",
+                        Margin = new Thickness(0, 0, 10, 0)
+                    };
+                    deleteButton.Click += (s, e) =>
+                    {
+                        // Remove from the in-memory list
+                        selectedTaskSet.Tasks.Remove(task);
+                        PopulateTaskStackPanel();
+                    };
+                    stackPanel.Children.Add(deleteButton);
+
+                    // Finally, add the row to the main panel
+                    TaskStackPanel.Children.Add(stackPanel);
                 }
             }
         }
-        private void AddTaskButton_Click(object sender, RoutedEventArgs e)
+
+            private void AddTaskButton_Click(object sender, RoutedEventArgs e)
         {
             if (TaskSetComboBox.SelectedItem is TaskSet selectedTaskSet)
             {
@@ -145,6 +210,16 @@ namespace QCLCalendarMaker
                 // DaysOffsetTextBox.Text = "";
                 PopulateTaskStackPanel();
             }
+        }
+
+        private void AddNewTaskSetButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void NewTaskSetNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
 }

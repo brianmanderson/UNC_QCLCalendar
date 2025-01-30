@@ -16,11 +16,18 @@
         <!-- ComboBox to display available TaskSets -->
         <ComboBox x:Name="TaskSetComboBox"
                   Grid.Row="0"
-                  Width="200"
-                  Margin="0,0,0,10"
+                  Margin="10,0,400,10"
                   DisplayMemberPath="TaskSetName"
+                  Height="25"
                   SelectionChanged="TaskSetComboBox_SelectionChanged"/>
-
+        <TextBox x:Name="NewTaskSetBox"
+                 Grid.Row="0"
+                 Margin="200,0,200,0"
+                 VerticalAlignment="Top"
+                 TextChanged="NewTaskSetNameTextBox_TextChanged" Height="25"/>
+        <Button x:Name="AddNewTaskSetButton" Content="Add new task set" HorizontalAlignment="Left"
+                Margin="400,0,0,0" VerticalAlignment="Top" 
+                Height="25" Width="130" Click="AddNewTaskSetButton_Click"/>
         <!-- This StackPanel will list the tasks of the selected TaskSet -->
         <StackPanel x:Name="TaskStackPanel"
                     Grid.Row="1"
