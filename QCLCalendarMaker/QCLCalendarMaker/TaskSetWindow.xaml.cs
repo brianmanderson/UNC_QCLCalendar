@@ -103,12 +103,14 @@ namespace QCLCalendarMaker
                 top_row.Orientation = Orientation.Horizontal;
                 top_row.Children.Add(new Label { Content = "Task Name" });
                 top_row.Children.Add(new Label { Content = "Days from Previous task" });
+                top_row.Children.Add(new Label { Content = "Days from Start" });
                 top_row.Children.Add(new Label { Content = "Allow edits?" });
                 top_row.Children.Add(new Label { Content = "Highlight?" });
                 TaskStackPanel.Children.Add(top_row);
                 int total_days = 0;
                 foreach (IndividualTask task in selectedTaskSet.Tasks)
                 {
+                    total_days += task.DaysNeeded;
                     // Create a horizontal panel for this task
                     StackPanel stackPanel = new StackPanel
                     {
@@ -118,22 +120,32 @@ namespace QCLCalendarMaker
                     };
 
                     // 1) Display the TaskName as a read-only TextBlock
-                    TextBlock nameTextBlock = new TextBlock
+                    TextBox nameTextBox = new TextBox
                     {
                         Text = task.TaskName,
                         Margin = new Thickness(0, 0, 20, 0)
                     };
-                    stackPanel.Children.Add(nameTextBlock);
+                    Binding nameBinding = new Binding("TaskName")
+                    {
+                        Mode = BindingMode.TwoWay,
+                        UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+                    };
+                    nameTextBox.SetBinding(TextBox.TextProperty, nameBinding);
+                    stackPanel.Children.Add(nameTextBox);
 
                     // 2) A TextBlock *two-way* bound to 'DaysNeeded'
-                    TextBlock daysTextBlock = new TextBlock { Margin = new Thickness(0, 0, 20, 0) };
+                    TextBox daysTextBox = new TextBox { Margin = new Thickness(0, 0, 20, 0) };
                     Binding daysBinding = new Binding("DaysNeeded")
                     {
                         Mode = BindingMode.TwoWay,
                         UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
                     };
-                    daysTextBlock.SetBinding(TextBlock.TextProperty, daysBinding);
-                    stackPanel.Children.Add(daysTextBlock);
+                    daysTextBox.SetBinding(TextBox.TextProperty, daysBinding);
+                    stackPanel.Children.Add(daysTextBox);
+
+                    TextBlock daysFromStartTextBlock = new TextBlock { Margin = new Thickness(0, 0, 20, 0) };
+                    daysFromStartTextBlock.Text = total_days.ToString();
+                    stackPanel.Children.Add(daysFromStartTextBlock);
 
                     // 3) A CheckBox bound to 'Editable'
                     CheckBox editableCheckBox = new CheckBox
