@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
+using System.IO;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace QCLCalendarMaker
 {
@@ -21,10 +18,27 @@ namespace QCLCalendarMaker
     public partial class TaskSetWindow : Window
     {
         public ObservableCollection<TaskSet> TaskSets = new ObservableCollection<TaskSet>();
+        public string filePath = Path.Combine(".", "TaskkSets.json");
         public TaskSetWindow()
         {
             InitializeComponent();
-            TaskSets = new ObservableCollection<TaskSet>
+            
+            if (File.Exists(filePath))
+            {
+                try
+                {
+                    string json = File.ReadAllText(filePath);
+                    TaskSets = JsonSerializer.Deserialize<ObservableCollection<TaskSet>>(json);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error reading {filePath}:\n{ex.Message}");
+                    // Fallback or set a default
+                }
+            }
+            else
+            {
+                TaskSets = new ObservableCollection<TaskSet>
             {
                 new TaskSet
                 {
@@ -42,7 +56,12 @@ namespace QCLCalendarMaker
                 },
                 // Add more TaskSets here if needed
             };
+            }
             TaskSetComboBox.SelectedIndex = -1;
+            if (TaskSets.Count > 0)
+            {
+                TaskSetComboBox.SelectedIndex = 0;
+            }
             // Initialize the first combo box
             TaskSetComboBox.ItemsSource = TaskSets;
             TaskSetComboBox.DisplayMemberPath = "TaskSetName";
@@ -55,11 +74,12 @@ namespace QCLCalendarMaker
         {
             // Clear previous items
             TaskStackPanel.Children.Clear();
-
+            DeleteTaskSetButton.IsEnabled = false;
             if (TaskSetComboBox.SelectedItem is TaskSet selectedTaskSet)
             {
                 // Display each task's name (and other info as needed)
                 PopulateTaskStackPanel();
+                DeleteTaskSetButton.IsEnabled = true;
             }
         }
 
@@ -99,6 +119,7 @@ namespace QCLCalendarMaker
             TaskStackPanel.Children.Clear();
             if (TaskSetComboBox.SelectedItem is TaskSet selectedTaskSet)
             {
+                // Top row remains the same (labels only)
                 StackPanel top_row = new StackPanel();
                 top_row.Orientation = Orientation.Horizontal;
                 top_row.Children.Add(new Label { Content = "Task Name" });
@@ -107,19 +128,27 @@ namespace QCLCalendarMaker
                 top_row.Children.Add(new Label { Content = "Allow edits?" });
                 top_row.Children.Add(new Label { Content = "Highlight?" });
                 TaskStackPanel.Children.Add(top_row);
+
                 int total_days = 0;
                 foreach (IndividualTask task in selectedTaskSet.Tasks)
                 {
                     total_days += task.DaysNeeded;
-                    // Create a horizontal panel for this task
-                    StackPanel stackPanel = new StackPanel
+
+                    // Replaced the StackPanel with a Grid
+                    Grid rowGrid = new Grid
                     {
-                        Orientation = Orientation.Horizontal,
                         Margin = new Thickness(0, 5, 0, 5),
-                        DataContext = task  // So binding can pick up from "task"
+                        DataContext = task // Bind directly to the IndividualTask
                     };
 
-                    // 1) Display the TaskName as a read-only TextBlock
+                    // Define columns for each control you add below
+                    // Adjust widths if you need fixed sizes
+                    for (int i = 0; i < 6; i++)
+                    {
+                        rowGrid.ColumnDefinitions.Add(new ColumnDefinition());
+                    }
+
+                    // 1) TextBox for TaskName
                     TextBox nameTextBox = new TextBox
                     {
                         Text = task.TaskName,
@@ -131,23 +160,33 @@ namespace QCLCalendarMaker
                         UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
                     };
                     nameTextBox.SetBinding(TextBox.TextProperty, nameBinding);
-                    stackPanel.Children.Add(nameTextBox);
+                    rowGrid.Children.Add(nameTextBox);
+                    Grid.SetColumn(nameTextBox, 0);
 
-                    // 2) A TextBlock *two-way* bound to 'DaysNeeded'
-                    TextBox daysTextBox = new TextBox { Margin = new Thickness(0, 0, 20, 0) };
+                    // 2) TextBox for DaysNeeded
+                    TextBox daysTextBox = new TextBox
+                    {
+                        Margin = new Thickness(0, 0, 20, 0)
+                    };
                     Binding daysBinding = new Binding("DaysNeeded")
                     {
                         Mode = BindingMode.TwoWay,
                         UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
                     };
                     daysTextBox.SetBinding(TextBox.TextProperty, daysBinding);
-                    stackPanel.Children.Add(daysTextBox);
+                    rowGrid.Children.Add(daysTextBox);
+                    Grid.SetColumn(daysTextBox, 1);
 
-                    TextBlock daysFromStartTextBlock = new TextBlock { Margin = new Thickness(0, 0, 20, 0) };
-                    daysFromStartTextBlock.Text = total_days.ToString();
-                    stackPanel.Children.Add(daysFromStartTextBlock);
+                    // 3) TextBlock to show total days so far
+                    TextBlock daysFromStartTextBlock = new TextBlock
+                    {
+                        Text = total_days.ToString(),
+                        Margin = new Thickness(0, 0, 20, 0)
+                    };
+                    rowGrid.Children.Add(daysFromStartTextBlock);
+                    Grid.SetColumn(daysFromStartTextBlock, 2);
 
-                    // 3) A CheckBox bound to 'Editable'
+                    // 4) CheckBox bound to 'Editable'
                     CheckBox editableCheckBox = new CheckBox
                     {
                         Content = "Editable",
@@ -159,9 +198,10 @@ namespace QCLCalendarMaker
                         UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
                     };
                     editableCheckBox.SetBinding(CheckBox.IsCheckedProperty, editableBinding);
-                    stackPanel.Children.Add(editableCheckBox);
+                    rowGrid.Children.Add(editableCheckBox);
+                    Grid.SetColumn(editableCheckBox, 3);
 
-                    // 4) A CheckBox bound to 'Highlight'
+                    // 5) CheckBox bound to 'Highlight'
                     CheckBox highlightCheckBox = new CheckBox
                     {
                         Content = "Highlight",
@@ -173,9 +213,10 @@ namespace QCLCalendarMaker
                         UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
                     };
                     highlightCheckBox.SetBinding(CheckBox.IsCheckedProperty, highlightBinding);
-                    stackPanel.Children.Add(highlightCheckBox);
+                    rowGrid.Children.Add(highlightCheckBox);
+                    Grid.SetColumn(highlightCheckBox, 4);
 
-                    // 5) A "Delete?" Button that removes the task from the set
+                    // 6) A "Delete?" Button
                     Button deleteButton = new Button
                     {
                         Content = "Delete?",
@@ -185,17 +226,20 @@ namespace QCLCalendarMaker
                     {
                         // Remove from the in-memory list
                         selectedTaskSet.Tasks.Remove(task);
+                        // Re-populate the panel
                         PopulateTaskStackPanel();
                     };
-                    stackPanel.Children.Add(deleteButton);
+                    rowGrid.Children.Add(deleteButton);
+                    Grid.SetColumn(deleteButton, 5);
 
-                    // Finally, add the row to the main panel
-                    TaskStackPanel.Children.Add(stackPanel);
+                    // Finally, add the row (grid) to the panel
+                    TaskStackPanel.Children.Add(rowGrid);
                 }
             }
         }
 
-            private void AddTaskButton_Click(object sender, RoutedEventArgs e)
+
+        private void AddTaskButton_Click(object sender, RoutedEventArgs e)
         {
             if (TaskSetComboBox.SelectedItem is TaskSet selectedTaskSet)
             {
@@ -226,12 +270,43 @@ namespace QCLCalendarMaker
 
         private void AddNewTaskSetButton_Click(object sender, RoutedEventArgs e)
         {
-
+            TaskSet new_set = new TaskSet();
+            new_set.TaskSetName = NewTaskSetBox.Text;
+            new_set.Tasks = new List<IndividualTask>();
+            TaskSets.Add(new_set);
+            NewTaskSetBox.Text = "";
         }
 
         private void NewTaskSetNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            AddNewTaskSetButton.IsEnabled = false;
+            if (NewTaskSetBox.Text != "")
+            {
+                AddNewTaskSetButton.IsEnabled = true;
+            }
+        }
 
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            PopulateTaskStackPanel();
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            string jsonString = JsonSerializer.Serialize(TaskSets, new JsonSerializerOptions { WriteIndented = true });
+
+            // 4) Write to the file
+            File.WriteAllText(filePath, jsonString);
+        }
+
+        private void DeleteTaskSetButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (TaskSetComboBox.SelectedItem is TaskSet selectedTaskSet)
+            {
+                TaskSets.Remove(selectedTaskSet);
+                TaskSetComboBox.SelectedIndex = -1;
+                PopulateTaskStackPanel();
+            }
         }
     }
 }
