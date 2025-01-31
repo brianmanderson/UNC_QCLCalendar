@@ -131,12 +131,14 @@ namespace QCLCalendarMaker
                 {
                     _selectedTreatment = treatment;
                     txt.Background = Brushes.LightGray;
+                    DeleteTreatmentButton.IsEnabled = true;
                     PopulateTaskComboBox();
                     PopulateIndividualTaskPanel();
                 };
                 txt.LostFocus += (s, e) =>
                 {
                     txt.Background = Brushes.White;
+                    DeleteTreatmentButton.IsEnabled = false;
                 };
 
                 TreatmentListedStackPanel.Children.Add(txt);
@@ -245,10 +247,6 @@ namespace QCLCalendarMaker
             PopulateModalityListedStackPanel();
         }
 
-        private void DeleteTaskSetButton_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
 
         private void AddTreatmentButton_Click(object sender, RoutedEventArgs e)
         {
