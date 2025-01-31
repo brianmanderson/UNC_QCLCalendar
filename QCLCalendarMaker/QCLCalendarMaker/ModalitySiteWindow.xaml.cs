@@ -23,7 +23,9 @@ namespace QCLCalendarMaker
     {
         public string TaskSetName { get; set; }
         public string taskset_filePath = Path.Combine(".", "TaskkSets.json");
+        public string modalities_filePath = Path.Combine(".", "Modalities.json");
         public ObservableCollection<TaskSet> TaskSets = new ObservableCollection<TaskSet>();
+        public ObservableCollection<ModalityClass> Modalities = new ObservableCollection<ModalityClass>();
         private void load_TaskSets()
         {
             if (File.Exists(taskset_filePath))
@@ -40,10 +42,27 @@ namespace QCLCalendarMaker
                 }
             }
         }
+        private void load_Modalities()
+        {
+            if (File.Exists(modalities_filePath))
+            {
+                try
+                {
+                    string json = File.ReadAllText(modalities_filePath);
+                    Modalities = JsonSerializer.Deserialize<ObservableCollection<ModalityClass>>(json);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error reading {modalities_filePath}:\n{ex.Message}");
+                    // Fallback or set a default
+                }
+            }
+        }
         public ModalitySiteWindow(List<ModalityClass> modalities)
         {
             InitializeComponent();
             load_TaskSets();
+            load_Modalities();
         }
 
         private void OpenTaskSetWindow_Click(object sender, RoutedEventArgs e)
@@ -51,6 +70,16 @@ namespace QCLCalendarMaker
             TaskSetWindow testSetWindow = new TaskSetWindow();
             testSetWindow.ShowDialog();
             load_TaskSets();
+        }
+
+        private void AddModalityButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void DeleteTaskSetButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
