@@ -18,45 +18,27 @@ namespace QCLCalendarMaker
     public partial class TaskSetWindow : Window
     {
         public ObservableCollection<TaskSet> TaskSets = new ObservableCollection<TaskSet>();
-        public string filePath = Path.Combine(".", "TaskkSets.json");
-        public TaskSetWindow()
+        public string taskset_filePath = Path.Combine(".", "TaskkSets.json");
+        private void load_TaskSets()
         {
-            InitializeComponent();
-            
-            if (File.Exists(filePath))
+            if (File.Exists(taskset_filePath))
             {
                 try
                 {
-                    string json = File.ReadAllText(filePath);
+                    string json = File.ReadAllText(taskset_filePath);
                     TaskSets = JsonSerializer.Deserialize<ObservableCollection<TaskSet>>(json);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error reading {filePath}:\n{ex.Message}");
+                    MessageBox.Show($"Error reading {taskset_filePath}:\n{ex.Message}");
                     // Fallback or set a default
                 }
             }
-            else
-            {
-                TaskSets = new ObservableCollection<TaskSet>
-            {
-                new TaskSet
-                {
-                    TaskSetName = "Default Task Set",
-                    Tasks = new List<IndividualTask>
-                    {
-                        new IndividualTask
-                        {
-                            TaskName = "Sample Task",
-                            DaysNeeded = 3,
-                            Highlight = false,
-                            Editable = true
-                        }
-                    }
-                },
-                // Add more TaskSets here if needed
-            };
-            }
+        }
+        public TaskSetWindow()
+        {
+            InitializeComponent();
+            load_TaskSets();
             TaskSetComboBox.SelectedIndex = -1;
             if (TaskSets.Count > 0)
             {
@@ -122,9 +104,9 @@ namespace QCLCalendarMaker
                 // Top row remains the same (labels only)
                 StackPanel top_row = new StackPanel();
                 top_row.Orientation = Orientation.Horizontal;
-                top_row.Children.Add(new Label { Content = "Task Name" });
+                top_row.Children.Add(new Label { Content = "Task Name"});
                 top_row.Children.Add(new Label { Content = "Days from Previous task" });
-                top_row.Children.Add(new Label { Content = "Days from Start" });
+                top_row.Children.Add(new Label { Content = "Days from Sim" });
                 top_row.Children.Add(new Label { Content = "Allow edits?" });
                 top_row.Children.Add(new Label { Content = "Highlight?" });
                 TaskStackPanel.Children.Add(top_row);
@@ -291,12 +273,16 @@ namespace QCLCalendarMaker
             PopulateTaskStackPanel();
         }
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        private void Save()
         {
             string jsonString = JsonSerializer.Serialize(TaskSets, new JsonSerializerOptions { WriteIndented = true });
 
             // 4) Write to the file
-            File.WriteAllText(filePath, jsonString);
+            File.WriteAllText(taskset_filePath, jsonString);
+        }
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            Save();
         }
 
         private void DeleteTaskSetButton_Click(object sender, RoutedEventArgs e)
@@ -307,6 +293,12 @@ namespace QCLCalendarMaker
                 TaskSetComboBox.SelectedIndex = -1;
                 PopulateTaskStackPanel();
             }
+        }
+
+        private void SaveAndExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            Save();
+            Close();
         }
     }
 }
