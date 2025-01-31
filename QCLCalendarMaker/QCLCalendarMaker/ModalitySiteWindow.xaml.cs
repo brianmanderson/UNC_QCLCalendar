@@ -81,5 +81,25 @@ namespace QCLCalendarMaker
         {
 
         }
+
+        private void AddTreatmentButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void DeleteTreatmentButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void AddTaskSetButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void TaskSetComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }

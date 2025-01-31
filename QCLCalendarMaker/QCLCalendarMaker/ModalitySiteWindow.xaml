@@ -5,14 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QCLCalendarMaker"
         mc:Ignorable="d"
-        Title="ModalitySiteWindow" Height="450" Width="1000">
+        Title="ModalitySiteWindow" Height="450" Width="1100">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
             <!-- Fills remaining space -->
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"  MinHeight="75" />
         </Grid.RowDefinitions>
         <Button Content="Open Task Set Window"
                 Grid.Row="0"
@@ -85,7 +83,7 @@
             <StackPanel x:Name="AddTaskSetStackPanel"
                         Orientation="Vertical"
                         Grid.Row="1"
-                        Margin="10,0,0,0" Width="300">
+                        Margin="10,0,0,0" Width="350">
                 <StackPanel x:Name="ButtonStackPanel"
                         Orientation="Horizontal"
                         Grid.Row="1"
