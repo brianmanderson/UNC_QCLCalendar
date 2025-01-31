@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QCLCalendarMaker"
         mc:Ignorable="d"
-        Title="ModalitySiteWindow" Height="450" Width="1100">
+        Title="ModalitySiteWindow" Height="450" Width="1200">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -21,18 +21,18 @@
         <StackPanel x:Name="WholeLineStackPanel"
                     Orientation="Horizontal"
                     Grid.Row="1"
-                    Margin="0,10,0,0">
+                    Margin="0,5,0,0">
             <StackPanel x:Name="ModalityStackPanel"
                         Orientation="Vertical"
                         Grid.Row="1"
-                        Margin="10,0,0,0">
+                        Margin="5,0,0,0">
                 <Button x:Name="AddModalityButton"
                         Content="Add"
                         HorizontalAlignment="Left"
                         Margin="10,50,0,0"
                         VerticalAlignment="Top"
                         Height="75" Width="120"
-                        IsEnabled="False"
+                        IsEnabled="True"
                         Click="AddModalityButton_Click"/>
                 <Button x:Name="DeleteModalityButton"
                         Content="Delete Modality"
@@ -41,14 +41,14 @@
                         VerticalAlignment="Top"
                         IsEnabled="False"
                         Height="75" Width="120"
-                        Click="DeleteTaskSetButton_Click"/>
+                        Click="DeleteModalityButton_Click"/>
             </StackPanel>
             <ScrollViewer VerticalScrollBarVisibility="Visible"
                           Grid.Row="1"
-                          Margin="20,0,0,0">
+                          Margin="5,50,0,0">
                 <StackPanel x:Name="ModalityListedStackPanel"
                             Orientation="Vertical"
-                            Margin="10,0,0,0" Width="150">
+                            Margin="10,0,0,0" Width="100">
                 </StackPanel>
             </ScrollViewer>
             <StackPanel x:Name="TreatmentStackPanel"
@@ -74,7 +74,7 @@
             </StackPanel>
             <ScrollViewer VerticalScrollBarVisibility="Visible"
                           Grid.Row="1"
-                          Margin="20,0,0,0">
+                          Margin="20,50,0,0">
                 <StackPanel x:Name="TreatmentListedStackPanel"
                             Orientation="Vertical"
                             Margin="10,0,0,0" Width="150">
@@ -83,29 +83,29 @@
             <StackPanel x:Name="AddTaskSetStackPanel"
                         Orientation="Vertical"
                         Grid.Row="1"
-                        Margin="10,0,0,0" Width="350">
+                        Margin="10,0,0,0" Width="575">
                 <StackPanel x:Name="ButtonStackPanel"
                         Orientation="Horizontal"
                         Grid.Row="1"
-                        Margin="10,0,0,0" Width="300">
+                        Margin="10,0,0,0" Width="400">
                     <ComboBox x:Name="TaskSetComboBox"
                           DisplayMemberPath="TaskSetName"
                           Margin="0, 0, 0, 0"
                           Height="25"
                           SelectionChanged="TaskSetComboBox_SelectionChanged"
-                          Width="170"/>
+                          Width="225"/>
                     <Button x:Name="AddTaskSetButton"
                         Content="Add Task Set"
                         HorizontalAlignment="Left"
                         Margin="10,0,0,0"
                         IsEnabled="False"
-                        Height="25" Width="120"
+                        Height="25" Width="150"
                         Click="AddTaskSetButton_Click"/>
                 </StackPanel>
                 <ScrollViewer VerticalScrollBarVisibility="Visible"
                               Grid.Row="1"
                               Margin="0,10,0,0"
-                              Height="300">
+                              Height="340">
                     <StackPanel x:Name="IndividualTaskPanel"
                                 Orientation="Vertical"
                                 Margin="0,0,0,0" Width="Auto">
