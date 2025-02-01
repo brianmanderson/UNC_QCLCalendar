@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Collections.ObjectModel;
 
 namespace QCLCalendarMaker
 {
@@ -28,11 +29,11 @@ namespace QCLCalendarMaker
             }
         }
 
-        public List<ModalityClass> Modalities { get; set; } = new List<ModalityClass>();
+        public ObservableCollection<ModalityClass> Modalities { get; set; } = new ObservableCollection<ModalityClass>();
 
-        public static List<ModalityClass> ReturnUNCModalities()
+        public static ObservableCollection<ModalityClass> ReturnUNCModalities()
         {
-            List<ModalityClass> UNCModalities = new List<ModalityClass>()
+            ObservableCollection<ModalityClass> UNCModalities = new ObservableCollection<ModalityClass>()
             {
         // ----------------- 3D -----------------
         new ModalityClass
@@ -143,34 +144,28 @@ namespace QCLCalendarMaker
 
             return UNCModalities;
         }
-        public MainWindow()
+        string modalities_filePath = Path.Combine(".", "Modalities.json");
+        private void load_Modalities()
         {
-            InitializeComponent();
-            string filePath = Path.Combine(".", "Modalities.json");
-
-            if (File.Exists(filePath) && false)
+            if (File.Exists(modalities_filePath))
             {
                 try
                 {
-                    string json = File.ReadAllText(filePath);
-                    Modalities = JsonSerializer.Deserialize<List<ModalityClass>>(json);
+                    string json = File.ReadAllText(modalities_filePath);
+                    Modalities = JsonSerializer.Deserialize<ObservableCollection<ModalityClass>>(json);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error reading {filePath}:\n{ex.Message}");
+                    MessageBox.Show($"Error reading {modalities_filePath}:\n{ex.Message}");
                     // Fallback or set a default
-                    Modalities = ReturnUNCModalities();
                 }
             }
-            else
-            {
-                // If file doesn't exist, start with default data
-                Modalities = ReturnUNCModalities();
-            }
-            string jsonString = JsonSerializer.Serialize(Modalities, new JsonSerializerOptions { WriteIndented = true });
-
+        }
+        public MainWindow()
+        {
+            InitializeComponent();
+            load_Modalities();
             // 4) Write to the file
-            File.WriteAllText(filePath, jsonString);
             // Set the DataContext to this window so bindings work
             DataContext = this;
 
@@ -233,7 +228,6 @@ namespace QCLCalendarMaker
         private void GenerateQCLLabels()
         {
             holidays = new List<DateTime>();
-            var selectedItem = (PlanningTypeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString();
             TreatmentClass specificPlan = SpecificPlanCombo.SelectedItem as TreatmentClass;
             QCLContainerStackPanel.Visibility = Visibility.Visible;
             // Always clear old labels first
@@ -349,8 +343,19 @@ namespace QCLCalendarMaker
 
         private void EditModalityButton_Click(object sender, RoutedEventArgs e)
         {
-            ModalitySiteWindow site_window = new ModalitySiteWindow(Modalities);
+            ModalitySiteWindow site_window = new ModalitySiteWindow();
             site_window.ShowDialog();
+            load_Modalities();
+            PlanningTypeCombo.SelectedIndex = -1;
+            // Initialize the first combo box
+            PlanningTypeCombo.ItemsSource = Modalities;
+            PlanningTypeCombo.DisplayMemberPath = "Modality";
+
+            // Optionally, pre-select the first item or do something else...
+            if (Modalities.Any())
+            {
+                PlanningTypeCombo.SelectedIndex = -1;
+            }
         }
     }
 }

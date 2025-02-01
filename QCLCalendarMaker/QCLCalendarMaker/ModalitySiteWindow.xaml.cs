@@ -28,6 +28,7 @@ namespace QCLCalendarMaker
         public ObservableCollection<ModalityClass> Modalities = new ObservableCollection<ModalityClass>();
         private ModalityClass _selectedModality;
         private TreatmentClass _selectedTreatment;
+        private TaskSet _selectedTaskSet;
         private void load_TaskSets()
         {
             if (File.Exists(taskset_filePath))
@@ -60,11 +61,12 @@ namespace QCLCalendarMaker
                 }
             }
         }
-        public ModalitySiteWindow(List<ModalityClass> modalities)
+        public ModalitySiteWindow()
         {
             InitializeComponent();
             load_TaskSets();
             load_Modalities();
+            TaskSetComboBox.ItemsSource = TaskSets;
             PopulateModalityListedStackPanel();
         }
         private void PopulateModalityListedStackPanel()
@@ -76,7 +78,7 @@ namespace QCLCalendarMaker
                 // Create a TextBox for the Modality name
                 var txt = new TextBox
                 {
-                    Width = 100,
+                    Width = 80,
                     Margin = new Thickness(0, 0, 0, 5),
                     DataContext = modalityItem
                 };
@@ -89,16 +91,31 @@ namespace QCLCalendarMaker
                 txt.SetBinding(TextBox.TextProperty, binding);
 
                 // On focus, set the selected modality and populate treatments
-                txt.GotFocus += (s, e) =>
+                txt.PreviewMouseLeftButtonDown += (s, e) =>
                 {
+                    // Mark this as the selected Modality
                     _selectedModality = modalityItem;
+
+                    // Reset backgrounds of all siblings to White
+                    foreach (var child in ModalityListedStackPanel.Children)
+                    {
+                        if (child is TextBox otherTxt)
+                        {
+                            otherTxt.Background = Brushes.White;
+                        }
+                    }
+
+                    // Highlight the clicked TextBox
                     txt.Background = Brushes.LightGray;
+
+                    // Refresh the Treatment list
                     PopulateTreatmentListedStackPanel();
+
+                    // Enable the "Delete" button
                     DeleteModalityButton.IsEnabled = true;
-                };
-                txt.LostFocus += (s, e) =>
-                {
-                    txt.Background = Brushes.White;
+
+                    // Optional: handle the event so it doesn't bubble further
+                    e.Handled = true;
                 };
 
                 ModalityListedStackPanel.Children.Add(txt);
@@ -107,6 +124,7 @@ namespace QCLCalendarMaker
         private void PopulateTreatmentListedStackPanel()
         {
             TreatmentListedStackPanel.Children.Clear();
+            IndividualTaskPanel.Children.Clear();
             if (_selectedModality == null) return;
             if (_selectedModality?.Treatments == null)
                 return;
@@ -127,33 +145,35 @@ namespace QCLCalendarMaker
                 txt.SetBinding(TextBox.TextProperty, binding);
 
                 // On focus, set the selected treatment and update the Task list
-                txt.GotFocus += (s, e) =>
+                txt.PreviewMouseLeftButtonDown += (s, e) =>
                 {
+                    // Mark this as the selected Modality
                     _selectedTreatment = treatment;
+
+                    // Reset backgrounds of all siblings to White
+                    foreach (var child in TreatmentListedStackPanel.Children)
+                    {
+                        if (child is TextBox otherTxt)
+                        {
+                            otherTxt.Background = Brushes.White;
+                        }
+                    }
+
+                    // Highlight the clicked TextBox
                     txt.Background = Brushes.LightGray;
-                    DeleteTreatmentButton.IsEnabled = true;
-                    PopulateTaskComboBox();
+
+                    // Refresh the Treatment list
                     PopulateIndividualTaskPanel();
-                };
-                txt.LostFocus += (s, e) =>
-                {
-                    txt.Background = Brushes.White;
-                    DeleteTreatmentButton.IsEnabled = false;
+
+                    // Enable the "Delete" button
+                    DeleteTreatmentButton.IsEnabled = true;
+
+                    // Optional: handle the event so it doesn't bubble further
+                    e.Handled = true;
                 };
 
                 TreatmentListedStackPanel.Children.Add(txt);
             }
-        }
-        private void PopulateTaskComboBox()
-        {
-            TaskSetComboBox.ItemsSource = null;
-
-            if (_selectedTreatment?.SchedulingTasks == null)
-                return;
-
-            TaskSetComboBox.ItemsSource = _selectedTreatment.SchedulingTasks;
-            // Because we set DisplayMemberPath="TaskName" in XAML,
-            // it will show each task's TaskName
         }
         private void PopulateIndividualTaskPanel()
         {
@@ -213,7 +233,6 @@ namespace QCLCalendarMaker
                 deleteBtn.Click += (s, e) =>
                 {
                     _selectedTreatment.SchedulingTasks.Remove(task);
-                    PopulateTaskComboBox();
                     PopulateIndividualTaskPanel();
                 };
                 Grid.SetColumn(deleteBtn, 4);
@@ -226,7 +245,8 @@ namespace QCLCalendarMaker
         private void TaskSetComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // If you need to track a "selected" task in the combo box:
-            var selectedTask = TaskSetComboBox.SelectedItem as IndividualTask;
+            _selectedTaskSet = TaskSetComboBox.SelectedItem as TaskSet;
+            AddTaskSetButton.IsEnabled = true;
             // Possibly do something here, or you can skip if you want.
         }
         private void OpenTaskSetWindow_Click(object sender, RoutedEventArgs e)
@@ -238,35 +258,49 @@ namespace QCLCalendarMaker
 
         private void AddModalityButton_Click(object sender, RoutedEventArgs e)
         {
-            var newModality = new ModalityClass
+            ModalityClass newModality = new ModalityClass
             {
-                Modality = "New Modality",
+                Modality = NewModalityNameTextBox.Text,
                 Treatments = new List<TreatmentClass>()
             };
             Modalities.Add(newModality);
+            _selectedTreatment = null;
             PopulateModalityListedStackPanel();
+            NewModalityNameTextBox.Text = "";
         }
 
 
         private void AddTreatmentButton_Click(object sender, RoutedEventArgs e)
         {
-
+            TreatmentClass newTreatment = new TreatmentClass
+            {
+                Site = NewTreatmentNameTextBox.Text,
+                SchedulingTasks = new List<IndividualTask>()
+            };
+            _selectedModality.Treatments.Add(newTreatment);
+            PopulateTreatmentListedStackPanel();
+            NewTreatmentNameTextBox.Text = "";
+            IndividualTaskPanel.Children.Clear();
         }
 
         private void DeleteTreatmentButton_Click(object sender, RoutedEventArgs e)
         {
-
+            if (_selectedModality == null) return;
+            if (_selectedTreatment == null) return;
+            _selectedModality.Treatments.Remove(_selectedTreatment);
+            PopulateTreatmentListedStackPanel();
         }
 
         private void AddTaskSetButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_selectedTreatment == null) return;
+            if (_selectedTaskSet == null) return;
 
             // Example: Add multiple tasks as a new "set"
-            _selectedTreatment.SchedulingTasks.Add(new IndividualTask { TaskName = "New Task 1", DaysNeeded = 2 });
-            _selectedTreatment.SchedulingTasks.Add(new IndividualTask { TaskName = "New Task 2", DaysNeeded = 5 });
-
-            PopulateTaskComboBox();
+            foreach (IndividualTask task in _selectedTaskSet.Tasks)
+            {
+                _selectedTreatment.SchedulingTasks.Add(new IndividualTask { TaskName = task.TaskName,
+                    DaysNeeded = task.DaysNeeded, Editable = task.Editable, Highlight=task.Highlight});
+            }
             PopulateIndividualTaskPanel();
         }
 
@@ -278,7 +312,32 @@ namespace QCLCalendarMaker
             PopulateModalityListedStackPanel();
             _selectedModality = null;
             PopulateTreatmentListedStackPanel();
+        }
 
+        private void NewModalityNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            AddModalityButton.IsEnabled = false;
+            if (NewModalityNameTextBox.Text.Length == 0) return;
+            AddModalityButton.IsEnabled = true;
+        }
+        private void Save()
+        {
+            string jsonString = JsonSerializer.Serialize(Modalities, new JsonSerializerOptions { WriteIndented = true });
+
+            // 4) Write to the file
+            File.WriteAllText(modalities_filePath, jsonString);
+        }
+        private void SaveAndExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            Save();
+            Close();
+        }
+
+        private void NewTreatmentNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            AddTreatmentButton.IsEnabled = false;
+            if (NewTreatmentNameTextBox.Text.Length == 0) return;
+            AddTreatmentButton.IsEnabled = true;
         }
     }
 }
