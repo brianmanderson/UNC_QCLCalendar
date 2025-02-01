@@ -60,36 +60,12 @@
                 Width="251"
                 Click="EditModalityButton_Click"/>
         <!-- StackPanel holding offset entry, warning, and QCL result labels -->
-        <StackPanel x:Name="QCLContainerStackPanel"
-                    Margin="352,175,0,0"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    Height="292"
-                    Width="273">
-
-            <!-- Offset entry for SIM Review -->
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="MD Contouring Days"
-                           VerticalAlignment="Center"
-                           Margin="0,0,5,0"/>
-                <TextBox x:Name="SimReviewOffsetTextBox"
-                         Width="30"
-                         Text="{Binding MDContouringDays, Mode=TwoWay}"
-                         TextChanged="SimReviewOffsetTextBox_TextChanged"/>
+        <ScrollViewer VerticalScrollBarVisibility="Visible"
+              Margin="300,175,0,0">
+            <StackPanel x:Name="QCLContainerStackPanel"
+                Orientation="Vertical"
+                Margin="10,0,0,0" Width="Auto">
             </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Planning Days"
-                           VerticalAlignment="Center"
-                           Margin="0,0,5,0"/>
-                <Label Name="PlanningDaysLabel" Content="{Binding PlanningDays, Mode=TwoWay}"/>
-            </StackPanel>
-            <!-- Warning label (hidden by default) -->
-            <Label x:Name="WarningLabel"
-                   Foreground="Red"
-                   Visibility="Collapsed" />
-
-            <!-- Where we generate the final QCL labels -->
-            <StackPanel x:Name="QCLStackPanel" />
-        </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Window>
