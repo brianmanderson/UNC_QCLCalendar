@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Collections.ObjectModel;
+using System.Windows.Data;
 
 namespace QCLCalendarMaker
 {
@@ -245,12 +246,34 @@ namespace QCLCalendarMaker
                 {
                     background = Brushes.Yellow;
                 }
+                StackPanel taskPanel = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Background = background,
+                    Margin = new Thickness(0, 5, 0, 5) // optional margin
+                };
                 Label newlabel = new Label
                 {
                     Content = $"{t.TaskName}: {new_day:M/dd}",
-                    Background = background,
+                    Width = 200
                 };
-                QCLStackPanel.Children.Add(newlabel);
+                taskPanel.Children.Add(newlabel);
+                TextBox daysTextBox = new TextBox
+                {
+                    Width = 40,
+                    Margin = new Thickness(10, 0, 0, 0),
+                    DataContext = t   // so binding picks up from 't'
+                };
+                Binding daysBinding = new Binding("DaysNeeded")
+                {
+                    Mode = BindingMode.TwoWay,
+                    UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+                };
+                daysTextBox.SetBinding(TextBox.TextProperty, daysBinding);
+                daysTextBox.IsEnabled = t.Editable;
+
+                taskPanel.Children.Add(daysTextBox);
+                QCLStackPanel.Children.Add(taskPanel);
             }
             if (holidays.Count > 0)
             {
