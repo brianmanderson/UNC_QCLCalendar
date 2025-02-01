@@ -174,7 +174,7 @@ namespace QCLCalendarMaker
             Today = new DateTime(Today.Year, Today.Month, Today.Day);
             MainCalendar.DisplayDateStart = Today.AddDays(-60);
             MainCalendar.DisplayDateEnd = Today.AddDays(60);
-            QCLContainerStackPanel.Visibility = Visibility.Collapsed;
+            QCLStackPanel.Visibility = Visibility.Collapsed;
 
             PlanningTypeCombo.SelectedIndex = -1;
             // Initialize the first combo box
@@ -229,7 +229,7 @@ namespace QCLCalendarMaker
         {
             holidays = new List<DateTime>();
             TreatmentClass specificPlan = SpecificPlanCombo.SelectedItem as TreatmentClass;
-            QCLContainerStackPanel.Visibility = Visibility.Visible;
+            QCLStackPanel.Visibility = Visibility.Visible;
             // Always clear old labels first
             QCLStackPanel.Children.Clear();
 
@@ -283,7 +283,7 @@ namespace QCLCalendarMaker
             }
             else
             {
-                QCLContainerStackPanel.Visibility = Visibility.Collapsed;
+                QCLStackPanel.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -318,28 +318,6 @@ namespace QCLCalendarMaker
         /// TextChanged event for the SIM Review offset TextBox.
         /// If invalid integer, show a warning. If valid, update the labels.
         /// </summary>
-        private void SimReviewOffsetTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (SpecificPlanCombo.SelectedIndex > -1)
-            {
-                // Try to parse the new value
-                if (int.TryParse(SimReviewOffsetTextBox.Text, out _))
-                {
-                    // Valid integer, hide warning
-                    WarningLabel.Visibility = Visibility.Collapsed;
-
-                    // go ahead and regenerate the labels immediatelyfdf
-                    GenerateQCLLabels();
-                }
-                else
-                {
-                    // Invalid integer, show warning and clear labels
-                    WarningLabel.Content = "Please enter a valid integer offset.";
-                    WarningLabel.Visibility = Visibility.Visible;
-                    QCLStackPanel.Children.Clear();
-                }
-            }
-        }
 
         private void EditModalityButton_Click(object sender, RoutedEventArgs e)
         {
