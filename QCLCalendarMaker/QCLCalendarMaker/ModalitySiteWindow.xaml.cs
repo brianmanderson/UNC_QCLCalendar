@@ -254,6 +254,7 @@ namespace QCLCalendarMaker
             TaskSetWindow testSetWindow = new TaskSetWindow();
             testSetWindow.ShowDialog();
             load_TaskSets();
+            TaskSetComboBox.ItemsSource = TaskSets;
         }
 
         private void AddModalityButton_Click(object sender, RoutedEventArgs e)
