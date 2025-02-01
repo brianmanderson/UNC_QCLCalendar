@@ -262,16 +262,21 @@ namespace QCLCalendarMaker
                 {
                     Width = 40,
                     Margin = new Thickness(10, 0, 0, 0),
-                    DataContext = t   // so binding picks up from 't'
+                    DataContext = t,
+                    IsEnabled = t.Editable
                 };
                 Binding daysBinding = new Binding("DaysNeeded")
                 {
                     Mode = BindingMode.TwoWay,
-                    UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+                    UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
+                    NotifyOnSourceUpdated = true
                 };
                 daysTextBox.SetBinding(TextBox.TextProperty, daysBinding);
-                daysTextBox.IsEnabled = t.Editable;
-
+                daysTextBox.SourceUpdated += (src, evt) =>
+                {
+                    // Re-generate the entire list to show the updated offsets, etc.
+                    GenerateQCLLabels();
+                };
                 taskPanel.Children.Add(daysTextBox);
                 QCLStackPanel.Children.Add(taskPanel);
             }
