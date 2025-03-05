@@ -22,6 +22,7 @@ using System.Runtime.CompilerServices;
 namespace QCLCalendarMaker
 {
     // Base class for all holiday rules.
+
     public abstract class HolidayRule : INotifyPropertyChanged
     {
         private string _name;
@@ -38,6 +39,27 @@ namespace QCLCalendarMaker
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        protected string GetMonthName(int month)
+        {
+            return System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month);
+        }
+        public string GetOccurrenceSuffix(int number)
+        {
+            string output = "th";
+            if (number == 1)
+            {
+                output = "st";
+            }
+            else if (number == 2)
+            {
+                output = "nd";
+            }
+            else if (number == 3)
+            {
+                output = "rd";
+            }
+            return output;
+        }
     }
 
     // For fixed dates (e.g. Christmas on December 25th).
@@ -50,6 +72,7 @@ namespace QCLCalendarMaker
         {
             return new DateTime(year, Month, Day);
         }
+        public string DisplayString => $"{GetMonthName(Month)} {Day}{GetOccurrenceSuffix(Day)}";
     }
 
     // For holidays defined as the nth occurrence of a weekday (e.g. 3rd Monday in January).
@@ -66,6 +89,14 @@ namespace QCLCalendarMaker
             int offset = ((int)Weekday - (int)firstOfMonth.DayOfWeek + 7) % 7;
             DateTime firstOccurrence = firstOfMonth.AddDays(offset);
             return firstOccurrence.AddDays(7 * (Occurrence - 1));
+        }
+        public string DisplayString
+        {
+            get
+            {
+                string suffix = GetOccurrenceSuffix(Occurrence);
+                return $"{Occurrence}{suffix} {Weekday} of {GetMonthName(Month)}";
+            }
         }
     }
 
@@ -84,6 +115,7 @@ namespace QCLCalendarMaker
             }
             return lastOfMonth;
         }
+        public string DisplayString => $"Last {Weekday} of {GetMonthName(Month)}";
     }
     /// <summary>
     /// Interaction logic for HolidayEditor.xaml

@@ -91,58 +91,14 @@
                 HorizontalAlignment="Center"
                 Margin="10">
 
-                <!-- Holiday Name (single row) -->
+                <!-- Holiday Name -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,5">
                     <Label Content="Holiday Name:"/>
                     <TextBlock Text="{Binding Name}" Margin="8,0,0,0"/>
                 </StackPanel>
 
-                <!-- Rule-Specific Read-Only Templates -->
-                <ContentControl Content="{Binding}">
-                    <ContentControl.Resources>
-                        <DataTemplate DataType="{x:Type local:FixedHolidayRule}">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,5">
-                                <Label Content="Type:"/>
-                                <TextBlock Text="Fixed Date" Margin="8,0,0,0"/>
-
-                                <Label Content="Month:" Margin="20,0,0,0"/>
-                                <TextBlock Text="{Binding Month}" Margin="5,0,0,0"/>
-
-                                <Label Content="Day:" Margin="20,0,0,0"/>
-                                <TextBlock Text="{Binding Day}" Margin="5,0,0,0"/>
-                            </StackPanel>
-                        </DataTemplate>
-
-                        <DataTemplate DataType="{x:Type local:NthWeekdayHolidayRule}">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,5">
-                                <Label Content="Type:"/>
-                                <TextBlock Text="Nth Weekday" Margin="8,0,0,0"/>
-
-                                <Label Content="Month:" Margin="20,0,0,0"/>
-                                <TextBlock Text="{Binding Month}" Margin="5,0,0,0"/>
-
-                                <Label Content="Weekday:" Margin="20,0,0,0"/>
-                                <TextBlock Text="{Binding Weekday}" Margin="5,0,0,0"/>
-
-                                <Label Content="Occurrence:" Margin="20,0,0,0"/>
-                                <TextBlock Text="{Binding Occurrence}" Margin="5,0,0,0"/>
-                            </StackPanel>
-                        </DataTemplate>
-
-                        <DataTemplate DataType="{x:Type local:LastWeekdayHolidayRule}">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,5">
-                                <Label Content="Type:"/>
-                                <TextBlock Text="Last Weekday" Margin="8,0,0,0"/>
-
-                                <Label Content="Month:" Margin="20,0,0,0"/>
-                                <TextBlock Text="{Binding Month}" Margin="5,0,0,0"/>
-
-                                <Label Content="Weekday:" Margin="20,0,0,0"/>
-                                <TextBlock Text="{Binding Weekday}" Margin="5,0,0,0"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ContentControl.Resources>
-                </ContentControl>
+                <!-- Single descriptive string for the holiday -->
+                <TextBlock Text="{Binding DisplayString}" />
             </StackPanel>
         </GroupBox>
 
