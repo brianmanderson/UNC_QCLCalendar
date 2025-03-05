@@ -15,15 +15,29 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using QCLCalendarMaker.Properties;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 
 namespace QCLCalendarMaker
 {
     // Base class for all holiday rules.
-    public abstract class HolidayRule
+    public abstract class HolidayRule : INotifyPropertyChanged
     {
-        public string Name { get; set; }
+        private string _name;
+        public string Name
+        {
+            get => _name;
+            set { _name = value; OnPropertyChanged(); }
+        }
+
         public abstract DateTime GetHolidayDate(int year);
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
     // For fixed dates (e.g. Christmas on December 25th).
@@ -160,6 +174,25 @@ namespace QCLCalendarMaker
                     {
                         Holidays.Add(newHoliday);
                         cmbExistingHolidays.Items.Refresh();
+                        cmbExistingHolidays.SelectedItem = newHoliday;
+
+                        // Clear out the input fields
+                        txtHolidayName.Clear();
+                        txtFixedMonth.Clear();
+                        txtFixedDay.Clear();
+                        txtNthMonth.Clear();
+                        txtOccurrence.Clear();
+                        txtLastMonth.Clear();
+                        // Reset ComboBoxes (optional: set to default index if desired)
+                        cmbHolidayType.SelectedIndex = -1;
+                        cmbWeekday.SelectedIndex = -1;
+                        cmbLastWeekday.SelectedIndex = -1;
+
+                        // Optionally hide panels if no type is selected anymore
+                        panelFixedDate.Visibility = Visibility.Collapsed;
+                        panelNthWeekday.Visibility = Visibility.Collapsed;
+                        panelLastWeekday.Visibility = Visibility.Collapsed;
+
                         MessageBox.Show("Holiday added successfully!");
                     }
                 }
@@ -170,9 +203,11 @@ namespace QCLCalendarMaker
             }
         }
 
+
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
             Save();
+            Close();
         }
 
         private void Save()
@@ -234,5 +269,63 @@ namespace QCLCalendarMaker
                 MessageBox.Show("Please select a holiday to delete.");
             }
         }
+
+        private void cmbExistingHolidays_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbExistingHolidays.SelectedItem is HolidayRule selectedHoliday)
+            {
+                // Populate the Holiday Name field
+                txtHolidayName.Text = selectedHoliday.Name;
+
+                // Determine the type of holiday rule and populate accordingly
+                if (selectedHoliday is FixedHolidayRule fixedHoliday)
+                {
+                    cmbHolidayType.SelectedIndex = 0; // "Fixed Date"
+                    panelFixedDate.Visibility = Visibility.Visible;
+                    panelNthWeekday.Visibility = Visibility.Collapsed;
+                    panelLastWeekday.Visibility = Visibility.Collapsed;
+                    txtFixedMonth.Text = fixedHoliday.Month.ToString();
+                    txtFixedDay.Text = fixedHoliday.Day.ToString();
+                }
+                else if (selectedHoliday is NthWeekdayHolidayRule nthHoliday)
+                {
+                    cmbHolidayType.SelectedIndex = 1; // "Nth Weekday"
+                    panelFixedDate.Visibility = Visibility.Collapsed;
+                    panelNthWeekday.Visibility = Visibility.Visible;
+                    panelLastWeekday.Visibility = Visibility.Collapsed;
+                    txtNthMonth.Text = nthHoliday.Month.ToString();
+                    txtOccurrence.Text = nthHoliday.Occurrence.ToString();
+
+                    // Select the correct weekday in the combo box
+                    foreach (ComboBoxItem item in cmbWeekday.Items)
+                    {
+                        if (item.Content.ToString() == nthHoliday.Weekday.ToString())
+                        {
+                            cmbWeekday.SelectedItem = item;
+                            break;
+                        }
+                    }
+                }
+                else if (selectedHoliday is LastWeekdayHolidayRule lastHoliday)
+                {
+                    cmbHolidayType.SelectedIndex = 2; // "Last Weekday"
+                    panelFixedDate.Visibility = Visibility.Collapsed;
+                    panelNthWeekday.Visibility = Visibility.Collapsed;
+                    panelLastWeekday.Visibility = Visibility.Visible;
+                    txtLastMonth.Text = lastHoliday.Month.ToString();
+
+                    // Select the correct weekday in the last weekday combo box
+                    foreach (ComboBoxItem item in cmbLastWeekday.Items)
+                    {
+                        if (item.Content.ToString() == lastHoliday.Weekday.ToString())
+                        {
+                            cmbLastWeekday.SelectedItem = item;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }
