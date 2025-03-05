@@ -1,0 +1,75 @@
+﻿<Window x:Class="QCLCalendarMaker.HolidayEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Holiday Editor" Height="350" Width="400">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Holiday Name Input -->
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+            <Label Content="Holiday Name:" Width="100"/>
+            <TextBox x:Name="txtHolidayName" Width="200" TextChanged="txtHolidayName_TextChanged"/>
+        </StackPanel>
+
+        <!-- Holiday Type Selection -->
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,0,0,10">
+            <Label Content="Holiday Type:" Width="100"/>
+            <ComboBox x:Name="cmbHolidayType" Width="200" SelectionChanged="cmbHolidayType_SelectionChanged">
+                <ComboBoxItem Content="Fixed Date"/>
+                <ComboBoxItem Content="Nth Weekday"/>
+                <ComboBoxItem Content="Last Weekday"/>
+            </ComboBox>
+        </StackPanel>
+
+        <!-- Fixed Date Inputs -->
+        <StackPanel x:Name="panelFixedDate" Orientation="Horizontal" Grid.Row="2" Margin="0,0,0,10" Visibility="Collapsed">
+            <Label Content="Month:" Width="50"/>
+            <TextBox x:Name="txtFixedMonth" Width="50"/>
+            <Label Content="Day:" Width="50" Margin="10,0,0,0"/>
+            <TextBox x:Name="txtFixedDay" Width="50"/>
+        </StackPanel>
+
+        <!-- Nth Weekday Inputs -->
+        <StackPanel x:Name="panelNthWeekday" Orientation="Horizontal" Grid.Row="3" Margin="0,0,0,10" Visibility="Collapsed">
+            <Label Content="Month:" Width="50"/>
+            <TextBox x:Name="txtNthMonth" Width="50"/>
+            <Label Content="Weekday:" Width="70" Margin="10,0,0,0"/>
+            <ComboBox x:Name="cmbWeekday" Width="100">
+                <ComboBoxItem Content="Sunday"/>
+                <ComboBoxItem Content="Monday"/>
+                <ComboBoxItem Content="Tuesday"/>
+                <ComboBoxItem Content="Wednesday"/>
+                <ComboBoxItem Content="Thursday"/>
+                <ComboBoxItem Content="Friday"/>
+                <ComboBoxItem Content="Saturday"/>
+            </ComboBox>
+            <Label Content="Occurrence:" Width="70" Margin="10,0,0,0"/>
+            <TextBox x:Name="txtOccurrence" Width="50"/>
+        </StackPanel>
+
+        <!-- Last Weekday Inputs -->
+        <StackPanel x:Name="panelLastWeekday" Orientation="Horizontal" Grid.Row="4" Margin="0,0,0,10" Visibility="Collapsed">
+            <Label Content="Month:" Width="50"/>
+            <TextBox x:Name="txtLastMonth" Width="50"/>
+            <Label Content="Weekday:" Width="70" Margin="10,0,0,0"/>
+            <ComboBox x:Name="cmbLastWeekday" Width="100">
+                <ComboBoxItem Content="Sunday"/>
+                <ComboBoxItem Content="Monday"/>
+                <ComboBoxItem Content="Tuesday"/>
+                <ComboBoxItem Content="Wednesday"/>
+                <ComboBoxItem Content="Thursday"/>
+                <ComboBoxItem Content="Friday"/>
+                <ComboBoxItem Content="Saturday"/>
+            </ComboBox>
+        </StackPanel>
+
+        <!-- Add Holiday Button -->
+        <Button Content="Add Holiday" Grid.Row="5" Width="100" Height="30" HorizontalAlignment="Center" Click="btnAddHoliday_Click"/>
+    </Grid>
+</Window>

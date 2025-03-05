@@ -363,5 +363,11 @@ namespace QCLCalendarMaker
                 PlanningTypeCombo.SelectedIndex = -1;
             }
         }
+
+        private void EditHolidayButton_Click(object sender, RoutedEventArgs e)
+        {
+            HolidayEditor holiday_window = new HolidayEditor();
+            holiday_window.ShowDialog();
+        }
     }
 }

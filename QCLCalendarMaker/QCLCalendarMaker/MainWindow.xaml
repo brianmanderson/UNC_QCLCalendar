@@ -67,5 +67,13 @@
                 Margin="10,0,0,0" Width="Auto">
             </StackPanel>
         </ScrollViewer>
+        <Button x:Name="HolidayButton_Copy"
+            Content="Edit Holidays"
+            HorizontalAlignment="Left"
+            Margin="21,325,0,0"
+            VerticalAlignment="Top"
+            Height="48"
+            Width="251"
+            Click="EditHolidayButton_Click"/>
     </Grid>
 </Window>
