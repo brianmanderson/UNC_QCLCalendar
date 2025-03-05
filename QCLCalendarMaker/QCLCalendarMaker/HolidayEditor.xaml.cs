@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
+using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,6 +14,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using QCLCalendarMaker.Properties;
+
 
 namespace QCLCalendarMaker
 {
@@ -71,12 +76,14 @@ namespace QCLCalendarMaker
     /// </summary>
     public partial class HolidayEditor : Window
     {
-        // A list to hold the user-defined holidays.
-        public List<HolidayRule> Holidays { get; private set; } = new List<HolidayRule>();
+        string holidays_filePath = System.IO.Path.Combine(".", "Holidays.json");
+        public ObservableCollection<HolidayRule> Holidays { get; set; } = new ObservableCollection<HolidayRule>();
 
         public HolidayEditor()
         {
             InitializeComponent();
+            load_Holidays();
+            cmbExistingHolidays.ItemsSource = Holidays;
         }
 
         private void cmbHolidayType_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -104,18 +111,18 @@ namespace QCLCalendarMaker
 
                 try
                 {
+                    HolidayRule newHoliday = null;
                     switch (type)
                     {
                         case "Fixed Date":
                             int fixedMonth = int.Parse(txtFixedMonth.Text);
                             int fixedDay = int.Parse(txtFixedDay.Text);
-                            FixedHolidayRule fixedRule = new FixedHolidayRule
+                            newHoliday = new FixedHolidayRule
                             {
                                 Name = name,
                                 Month = fixedMonth,
                                 Day = fixedDay
                             };
-                            Holidays.Add(fixedRule);
                             break;
 
                         case "Nth Weekday":
@@ -123,27 +130,25 @@ namespace QCLCalendarMaker
                             int occurrence = int.Parse(txtOccurrence.Text);
                             ComboBoxItem weekdayItem = cmbWeekday.SelectedItem as ComboBoxItem;
                             DayOfWeek weekday = (DayOfWeek)Enum.Parse(typeof(DayOfWeek), weekdayItem.Content.ToString());
-                            NthWeekdayHolidayRule nthRule = new NthWeekdayHolidayRule
+                            newHoliday = new NthWeekdayHolidayRule
                             {
                                 Name = name,
                                 Month = nthMonth,
                                 Occurrence = occurrence,
                                 Weekday = weekday
                             };
-                            Holidays.Add(nthRule);
                             break;
 
                         case "Last Weekday":
                             int lastMonth = int.Parse(txtLastMonth.Text);
                             ComboBoxItem lastWeekdayItem = cmbLastWeekday.SelectedItem as ComboBoxItem;
                             DayOfWeek lastWeekday = (DayOfWeek)Enum.Parse(typeof(DayOfWeek), lastWeekdayItem.Content.ToString());
-                            LastWeekdayHolidayRule lastRule = new LastWeekdayHolidayRule
+                            newHoliday = new LastWeekdayHolidayRule
                             {
                                 Name = name,
                                 Month = lastMonth,
                                 Weekday = lastWeekday
                             };
-                            Holidays.Add(lastRule);
                             break;
 
                         default:
@@ -151,7 +156,12 @@ namespace QCLCalendarMaker
                             break;
                     }
 
-                    MessageBox.Show("Holiday added successfully!");
+                    if (newHoliday != null)
+                    {
+                        Holidays.Add(newHoliday);
+                        cmbExistingHolidays.Items.Refresh();
+                        MessageBox.Show("Holiday added successfully!");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -160,9 +170,69 @@ namespace QCLCalendarMaker
             }
         }
 
-        private void txtHolidayName_TextChanged(object sender, TextChangedEventArgs e)
+        private void btnSave_Click(object sender, RoutedEventArgs e)
         {
+            Save();
+        }
 
+        private void Save()
+        {
+            try
+            {
+                var settings = new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.All,
+                    Formatting = Formatting.Indented
+                };
+                string jsonString = JsonConvert.SerializeObject(Holidays, settings);
+                File.WriteAllText(holidays_filePath, jsonString);
+
+                MessageBox.Show("Holidays saved successfully!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error saving holidays: " + ex.Message);
+            }
+        }
+
+        private void load_Holidays()
+        {
+            if (File.Exists(holidays_filePath))
+            {
+                try
+                {
+                    var settings = new JsonSerializerSettings
+                    {
+                        TypeNameHandling = TypeNameHandling.All,
+                        Formatting = Formatting.Indented
+                    };
+                    string json = File.ReadAllText(holidays_filePath);
+                    Holidays = JsonConvert.DeserializeObject<ObservableCollection<HolidayRule>>(json, settings);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error reading {holidays_filePath}:\n{ex.Message}");
+                    // Fallback or set a default
+                }
+            }
+        }
+
+        private void btnDeleteHoliday_Click(object sender, RoutedEventArgs e)
+        {
+            if (cmbExistingHolidays.SelectedItem is HolidayRule selectedHoliday)
+            {
+                if (MessageBox.Show($"Are you sure you want to delete the holiday '{selectedHoliday.Name}'?",
+                                    "Confirm Delete", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    Holidays.Remove(selectedHoliday);
+                    cmbExistingHolidays.Items.Refresh();
+                    MessageBox.Show("Holiday deleted successfully.");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a holiday to delete.");
+            }
         }
     }
 }
