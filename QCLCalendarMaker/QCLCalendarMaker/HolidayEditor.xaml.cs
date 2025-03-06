@@ -115,7 +115,7 @@ namespace QCLCalendarMaker
     /// </summary>
     public partial class HolidayEditor : Window
     {
-        string holidays_filePath = System.IO.Path.Combine(".", "Holidays.json");
+        string holidays_filePath = Path.Combine(".", "Holidays.json");
         public ObservableCollection<HolidayRule> Holidays { get; set; } = new ObservableCollection<HolidayRule>();
 
         public HolidayEditor()

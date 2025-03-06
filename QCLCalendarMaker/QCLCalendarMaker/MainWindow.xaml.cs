@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
+using Newtonsoft.Json;
 
 namespace QCLCalendarMaker
 {
@@ -16,7 +17,9 @@ namespace QCLCalendarMaker
     {
         private DateTime Today;
         private DateTime _selectedDay;
-        public List<DateTime> holidays = new List<DateTime>();
+        public ObservableCollection<HolidayRule> Holidays { get; set; } = new ObservableCollection<HolidayRule>();
+        public List<DateTime> holiday_datetimes = new List<DateTime>();
+        public List<DateTime> holidays_hit = new List<DateTime>();
         public DateTime SelectedDay
         {
             get => _selectedDay;
@@ -146,6 +149,7 @@ namespace QCLCalendarMaker
             return UNCModalities;
         }
         string modalities_filePath = Path.Combine(".", "Modalities.json");
+        string holidays_filePath = Path.Combine(".", "Holidays.json");
         private void load_Modalities()
         {
             if (File.Exists(modalities_filePath))
@@ -153,7 +157,7 @@ namespace QCLCalendarMaker
                 try
                 {
                     string json = File.ReadAllText(modalities_filePath);
-                    Modalities = JsonSerializer.Deserialize<ObservableCollection<ModalityClass>>(json);
+                    Modalities = System.Text.Json.JsonSerializer.Deserialize<ObservableCollection<ModalityClass>>(json);
                 }
                 catch (Exception ex)
                 {
@@ -162,10 +166,32 @@ namespace QCLCalendarMaker
                 }
             }
         }
+        private void load_Holidays()
+        {
+            if (File.Exists(holidays_filePath))
+            {
+                try
+                {
+                    var settings = new JsonSerializerSettings
+                    {
+                        TypeNameHandling = TypeNameHandling.All,
+                        Formatting = Formatting.Indented
+                    };
+                    string json = File.ReadAllText(holidays_filePath);
+                    Holidays = JsonConvert.DeserializeObject<ObservableCollection<HolidayRule>>(json, settings);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error reading {holidays_filePath}:\n{ex.Message}");
+                    // Fallback or set a default
+                }
+            }
+        }
         public MainWindow()
         {
             InitializeComponent();
             load_Modalities();
+            load_Holidays();
             // 4) Write to the file
             // Set the DataContext to this window so bindings work
             DataContext = this;
@@ -198,10 +224,23 @@ namespace QCLCalendarMaker
             int absDays = Math.Abs(daysToAdd);
 
             DateTime newDate = startDate;
-            List<DateTime> US_holidays = USHolidays.GetFederalHolidays(startDate.Year);
+            int start_year = newDate.Year;
+            holiday_datetimes = new List<DateTime>();
+            foreach (var holiday in Holidays)
+            {
+                holiday_datetimes.Add(holiday.GetHolidayDate(newDate.Year));
+            }
             while (absDays > 0)
             {
                 newDate = newDate.AddDays(direction);
+                if (newDate.Year != start_year)
+                {
+                    holiday_datetimes = new List<DateTime>();
+                    foreach (var holiday in Holidays)
+                    {
+                        holiday_datetimes.Add(holiday.GetHolidayDate(newDate.Year));
+                    }
+                }
                 if (newDate.DayOfWeek == DayOfWeek.Sunday)
                 {
                     continue;
@@ -210,11 +249,11 @@ namespace QCLCalendarMaker
                 {
                     continue;
                 }
-                else if (US_holidays.Contains(newDate))
+                else if (holiday_datetimes.Contains(newDate))
                 {
-                    if (!holidays.Contains(newDate))
+                    if (!holidays_hit.Contains(newDate))
                     {
-                        holidays.Add(newDate);
+                        holidays_hit.Add(newDate);
                     }
                     continue;
                 }
@@ -228,7 +267,7 @@ namespace QCLCalendarMaker
         /// </summary>
         private void GenerateQCLLabels()
         {
-            holidays = new List<DateTime>();
+            holidays_hit = new List<DateTime>();
             TreatmentClass specificPlan = SpecificPlanCombo.SelectedItem as TreatmentClass;
             QCLStackPanel.Visibility = Visibility.Visible;
             // Always clear old labels first
@@ -280,10 +319,10 @@ namespace QCLCalendarMaker
                 taskPanel.Children.Add(daysTextBox);
                 QCLStackPanel.Children.Add(taskPanel);
             }
-            if (holidays.Count > 0)
+            if (holidays_hit.Count > 0)
             {
                 string content = $"Holiday encountered, please verify QCLs!";
-                foreach (DateTime holiday in holidays)
+                foreach (DateTime holiday in holidays_hit)
                 {
                     content += $"\n{holiday:M/dd}";
                 }
@@ -368,6 +407,17 @@ namespace QCLCalendarMaker
         {
             HolidayEditor holiday_window = new HolidayEditor();
             holiday_window.ShowDialog();
+            load_Holidays();
+            PlanningTypeCombo.SelectedIndex = -1;
+            // Initialize the first combo box
+            PlanningTypeCombo.ItemsSource = Modalities;
+            PlanningTypeCombo.DisplayMemberPath = "Modality";
+
+            // Optionally, pre-select the first item or do something else...
+            if (Modalities.Any())
+            {
+                PlanningTypeCombo.SelectedIndex = -1;
+            }
         }
     }
 }
