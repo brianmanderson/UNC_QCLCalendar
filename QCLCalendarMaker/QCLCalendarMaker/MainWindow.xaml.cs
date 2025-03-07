@@ -20,6 +20,7 @@ namespace QCLCalendarMaker
         public ObservableCollection<HolidayRule> Holidays { get; set; } = new ObservableCollection<HolidayRule>();
         public List<DateTime> holiday_datetimes = new List<DateTime>();
         public List<DateTime> holidays_hit = new List<DateTime>();
+        private TreatmentClass specificPlan;
         public DateTime SelectedDay
         {
             get => _selectedDay;
@@ -268,7 +269,6 @@ namespace QCLCalendarMaker
         private void GenerateQCLLabels()
         {
             holidays_hit = new List<DateTime>();
-            TreatmentClass specificPlan = SpecificPlanCombo.SelectedItem as TreatmentClass;
             QCLStackPanel.Visibility = Visibility.Visible;
             // Always clear old labels first
             QCLStackPanel.Children.Clear();
@@ -346,6 +346,8 @@ namespace QCLCalendarMaker
             // If the user picks any site (index != 0), enable QCL button
             if (SpecificPlanCombo.SelectedIndex > -1)
             {
+                TreatmentClass selected_plan = SpecificPlanCombo.SelectedItem as TreatmentClass;
+                specificPlan = new TreatmentClass(selected_plan);
                 GenerateQCLLabels();
             }
             else
