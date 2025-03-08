@@ -73,6 +73,7 @@ namespace QCLCalendarMaker
         {
             ModalityListedStackPanel.Children.Clear();
             DeleteModalityButton.IsEnabled = false;
+            TaskSetComboBox.IsEnabled = false;
             foreach (ModalityClass modalityItem in Modalities)
             {
                 // Create a TextBox for the Modality name
@@ -128,7 +129,7 @@ namespace QCLCalendarMaker
             if (_selectedModality == null) return;
             if (_selectedModality?.Treatments == null)
                 return;
-
+            TaskSetComboBox.IsEnabled = false;
             foreach (TreatmentClass treatment in _selectedModality.Treatments)
             {
                 var txt = new TextBox
@@ -179,7 +180,10 @@ namespace QCLCalendarMaker
         {
             IndividualTaskPanel.Children.Clear();
             if (_selectedTreatment?.SchedulingTasks == null) return;
-
+            if (_selectedTreatment.SchedulingTasks.Count == 0)
+            {
+                TaskSetComboBox.IsEnabled = true;
+            }
             foreach (var task in _selectedTreatment.SchedulingTasks)
             {
                 // Create a grid for this "row"
@@ -269,7 +273,6 @@ namespace QCLCalendarMaker
             PopulateModalityListedStackPanel();
             NewModalityNameTextBox.Text = "";
         }
-
 
         private void AddTreatmentButton_Click(object sender, RoutedEventArgs e)
         {
