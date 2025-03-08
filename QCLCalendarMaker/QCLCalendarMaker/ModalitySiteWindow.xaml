@@ -99,18 +99,18 @@
                         Grid.Row="1"
                         Margin="10,10,0,0" Width="400">
                     <ComboBox x:Name="TaskSetComboBox"
-                          DisplayMemberPath="TaskSetName"
-                          Margin="0, 0, 0, 0"
-                          Height="25"
-                          SelectionChanged="TaskSetComboBox_SelectionChanged"
-                          Width="225"/>
+                              DisplayMemberPath="TaskSetName"
+                              Margin="0, 0, 0, 0"
+                              Height="25"
+                              SelectionChanged="TaskSetComboBox_SelectionChanged"
+                              Width="225"/>
                     <Button x:Name="AddTaskSetButton"
-                        Content="Add Task Set"
-                        HorizontalAlignment="Left"
-                        Margin="10,0,0,0"
-                        IsEnabled="False"
-                        Height="25" Width="150"
-                        Click="AddTaskSetButton_Click"/>
+                            Content="Add Task Set"
+                            HorizontalAlignment="Left"
+                            Margin="10,0,0,0"
+                            IsEnabled="False"
+                            Height="25" Width="150"
+                            Click="AddTaskSetButton_Click"/>
                 </StackPanel>
                 <ScrollViewer VerticalScrollBarVisibility="Visible"
                               Grid.Row="1"
@@ -121,6 +121,34 @@
                                 Margin="0,0,0,0" Width="Auto">
                     </StackPanel>
                 </ScrollViewer>
+                <!-- New row: Add Treatment Task Panel -->
+                <StackPanel x:Name="AddTreatmentTaskStackPanel"
+                            Orientation="Horizontal"
+                            Margin="0,20,0,0">
+                    <TextBox x:Name="NewTaskNameTextBox"
+                             Width="120"
+                             Margin="0,0,10,0"
+                             VerticalAlignment="Center"
+                             TextChanged="NewTaskNameTextBox_TextChanged"/>
+                    <TextBox x:Name="DaysOffsetTextBox"
+                             Width="60"
+                             Margin="0,0,10,0"
+                             VerticalAlignment="Center"
+                             TextChanged="DaysOffsetTextBox_TextChanged"/>
+                    <CheckBox x:Name="HighlightCheckBox"
+                              Content="Highlight"
+                              Margin="0,0,10,0"
+                              VerticalAlignment="Center"/>
+                    <CheckBox x:Name="AllowEditCheckBox"
+                              Content="Editable"
+                              Margin="0,0,10,0"
+                              VerticalAlignment="Center"/>
+                    <Button x:Name="AddTaskButton"
+                            Content="Add Task"
+                            IsEnabled="False"
+                            Click="AddTaskButton_Click"
+                            VerticalAlignment="Center"/>
+                </StackPanel>
                 <Button x:Name="SaveExitButton"
                         Grid.Row="1"
                         Content="Save and Exit"

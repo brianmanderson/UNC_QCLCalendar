@@ -74,6 +74,7 @@ namespace QCLCalendarMaker
             ModalityListedStackPanel.Children.Clear();
             DeleteModalityButton.IsEnabled = false;
             TaskSetComboBox.IsEnabled = false;
+            AddTaskSetButton.IsEnabled = false;
             foreach (ModalityClass modalityItem in Modalities)
             {
                 // Create a TextBox for the Modality name
@@ -130,6 +131,7 @@ namespace QCLCalendarMaker
             if (_selectedModality?.Treatments == null)
                 return;
             TaskSetComboBox.IsEnabled = false;
+            AddTaskSetButton.IsEnabled = false;
             foreach (TreatmentClass treatment in _selectedModality.Treatments)
             {
                 var txt = new TextBox
@@ -179,10 +181,13 @@ namespace QCLCalendarMaker
         private void PopulateIndividualTaskPanel()
         {
             IndividualTaskPanel.Children.Clear();
+            TaskSetComboBox.IsEnabled = false;
+            AddTaskSetButton.IsEnabled = false;
             if (_selectedTreatment?.SchedulingTasks == null) return;
             if (_selectedTreatment.SchedulingTasks.Count == 0)
             {
                 TaskSetComboBox.IsEnabled = true;
+                AddTaskSetButton.IsEnabled = true;
             }
             foreach (var task in _selectedTreatment.SchedulingTasks)
             {
@@ -342,6 +347,44 @@ namespace QCLCalendarMaker
             AddTreatmentButton.IsEnabled = false;
             if (NewTreatmentNameTextBox.Text.Length == 0) return;
             AddTreatmentButton.IsEnabled = true;
+        }
+
+        private void ValidateAddTaskButton()
+        {
+            bool hasName = !string.IsNullOrWhiteSpace(NewTaskNameTextBox.Text);
+
+            int parsed;
+            bool isInteger = int.TryParse(DaysOffsetTextBox.Text, out parsed);
+
+            AddTaskButton.IsEnabled = hasName && isInteger;
+        }
+        private void NewTreatmentTaskNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Enable the AddTreatmentTaskButton if the text is not empty and a treatment is selected.
+            ValidateAddTaskButton();
+        }
+
+        private void AddTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            var newTask = new IndividualTask
+            {
+                TaskName = NewTaskNameTextBox.Text,
+                DaysNeeded = int.Parse(DaysOffsetTextBox.Text),
+                Highlight = HighlightCheckBox.IsChecked ?? false,
+                Editable = AllowEditCheckBox.IsChecked ?? false
+            };
+            _selectedTreatment.SchedulingTasks.Add(newTask);
+            PopulateIndividualTaskPanel();
+        }
+
+        private void NewTaskNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ValidateAddTaskButton();
+        }
+
+        private void DaysOffsetTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ValidateAddTaskButton();
         }
     }
 }
