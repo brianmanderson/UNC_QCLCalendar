@@ -364,6 +364,14 @@ namespace QCLCalendarMaker
             ValidateAddTaskButton();
         }
 
+        private void ResetAddTreatmentRow()
+        {
+            NewTaskNameTextBox.Text = "";
+            DaysOffsetTextBox.Text = "";
+            HighlightCheckBox.IsChecked = false;
+            AllowEditCheckBox.IsChecked = false;
+            ValidateAddTaskButton();
+        }
         private void AddTaskButton_Click(object sender, RoutedEventArgs e)
         {
             var newTask = new IndividualTask
@@ -374,6 +382,7 @@ namespace QCLCalendarMaker
                 Editable = AllowEditCheckBox.IsChecked ?? false
             };
             _selectedTreatment.SchedulingTasks.Add(newTask);
+            ResetAddTreatmentRow();
             PopulateIndividualTaskPanel();
         }
 

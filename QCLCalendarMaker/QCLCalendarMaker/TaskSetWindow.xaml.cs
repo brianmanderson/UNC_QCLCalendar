@@ -220,7 +220,14 @@ namespace QCLCalendarMaker
             }
         }
 
-
+        private void ResetAddTreatmentRow()
+        {
+            NewTaskNameTextBox.Text = "";
+            DaysOffsetTextBox.Text = "";
+            HighlightCheckBox.IsChecked = false;
+            AllowEditCheckBox.IsChecked = false;
+            ValidateAddTaskButton();
+        }
         private void AddTaskButton_Click(object sender, RoutedEventArgs e)
         {
             if (TaskSetComboBox.SelectedItem is TaskSet selectedTaskSet)
@@ -239,13 +246,7 @@ namespace QCLCalendarMaker
 
                 // Add the new task to the selected TaskSet
                 selectedTaskSet.Tasks.Add(newTask);
-
-                // Also add a visual line to the TaskStackPanel (or refresh it fully).
-                // For simplicity, just add a new TextBlock here:
-
-                // Optionally clear input fields, etc.
-                // NewTaskNameTextBox.Text = "";
-                // DaysOffsetTextBox.Text = "";
+                ResetAddTreatmentRow();
                 PopulateTaskStackPanel();
             }
         }
