@@ -297,12 +297,17 @@ namespace QCLCalendarMaker
                     Width = 200
                 };
                 taskPanel.Children.Add(newlabel);
+                bool is_editable = t.Editable;
+                if (EditAllTasksCheckBox.IsChecked == true )
+                {
+                    is_editable = true;
+                }
                 TextBox daysTextBox = new TextBox
                 {
                     Width = 40,
                     Margin = new Thickness(10, 0, 0, 0),
                     DataContext = t,
-                    IsEnabled = t.Editable
+                    IsEnabled = is_editable
                 };
                 Binding daysBinding = new Binding("DaysNeeded")
                 {
@@ -333,6 +338,12 @@ namespace QCLCalendarMaker
                 };
                 QCLStackPanel.Children.Add(HolidayLabel);
             }
+            Label added_content_label = new Label
+            {
+                Content = $"FOR NON-STANDARD CASES, PLEASE SCHEDULE \n“DOS – Tx planning” QCL 2 DAYS BEFORE START OF TREATMENT",
+                Width = 400
+            };
+            QCLStackPanel.Children.Add(added_content_label);
         }
 
         // --- Event Handlers ---
@@ -348,10 +359,14 @@ namespace QCLCalendarMaker
             {
                 TreatmentClass selected_plan = SpecificPlanCombo.SelectedItem as TreatmentClass;
                 specificPlan = new TreatmentClass(selected_plan);
+                EditAllTasksCheckBox.IsEnabled = true;
+                EditAllTasksCheckBox.Visibility = Visibility.Visible;
                 GenerateQCLLabels();
             }
             else
             {
+                EditAllTasksCheckBox.IsEnabled = false;
+                EditAllTasksCheckBox.Visibility = Visibility.Collapsed;
                 QCLStackPanel.Visibility = Visibility.Collapsed;
             }
         }
@@ -420,6 +435,11 @@ namespace QCLCalendarMaker
             {
                 PlanningTypeCombo.SelectedIndex = -1;
             }
+        }
+
+        private void EditAllTasksCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            GenerateQCLLabels();
         }
     }
 }

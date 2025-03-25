@@ -61,12 +61,17 @@
                 Click="EditModalityButton_Click"/>
         <!-- StackPanel holding offset entry, warning, and QCL result labels -->
         <ScrollViewer VerticalScrollBarVisibility="Visible"
-              Margin="300,175,0,0">
+              Margin="300,194,10,41">
             <StackPanel x:Name="QCLStackPanel"
                 Orientation="Vertical"
                 Margin="10,0,0,0" Width="Auto">
             </StackPanel>
         </ScrollViewer>
+        <CheckBox x:Name="EditAllTasksCheckBox"
+                  Content="Allow edit all tasks?" Margin="455,166,205,0"
+                  IsEnabled="False"
+                  Visibility="Collapsed"
+                  VerticalAlignment="Top" Unchecked="EditAllTasksCheckBox_Checked" Checked="EditAllTasksCheckBox_Checked"/>
         <Button x:Name="HolidayButton_Copy"
             Content="Edit Holidays"
             HorizontalAlignment="Left"
