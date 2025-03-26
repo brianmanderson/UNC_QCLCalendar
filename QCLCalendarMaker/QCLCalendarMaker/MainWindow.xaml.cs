@@ -360,6 +360,7 @@ namespace QCLCalendarMaker
                 TreatmentClass selected_plan = SpecificPlanCombo.SelectedItem as TreatmentClass;
                 specificPlan = new TreatmentClass(selected_plan);
                 EditAllTasksCheckBox.IsEnabled = true;
+                EditAllTasksCheckBox.IsChecked = false;
                 EditAllTasksCheckBox.Visibility = Visibility.Visible;
                 GenerateQCLLabels();
             }
